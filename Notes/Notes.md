@@ -220,3 +220,58 @@ Note: the various versions can be inter-defined
 - $x \vDash p \ U^{\geq} q \iff x \vDash p \ U^{>}q \ \lor q$
 
 # Tablau-based decision for LTL
+
+Our method:
+- *Implicit*: the accessibility relation is built-in into the structure of the tableau
+- *Declarative*: first generate all possible sets of subformulae of a given formula an then prune
+
+*Closure $\Phi_\phi$ of a formula $\phi$*: smallest set such that
+- $\phi \in \Phi_\phi$
+- $p \in \Phi_\phi \to \neg p \in \Phi_\phi$
+- $p \in \Phi_\phi \land q \textrm{ subformula of } p \to q \in \Phi_\phi$
+- $\psi \in \{Gp, Fp, p\ U q\}, \psi \in \Phi_\phi \to X\psi \in \Phi_\phi$
+
+$\alpha$ and $\beta$ formulas:
+
+| $\alpha$ | $k(\alpha)$ |
+| :--: | :--: |
+| $p \land q$ | $p,q$ |
+| $Gp$ | $p, XGp$
+
+
+| $\beta$ | $k_1(\beta)$ | $k_2(\beta)$ |
+| :--: | :--: | :--: |
+| $p \lor q$ | $p$ | $q$ |
+| $Fp$ | $p$ | $XFp$ |
+| $p\ U q$ | $q$ | $p, X(p\ U q)$ |
+
+A $\phi$-atom is a subset of $\Phi_\phi$ such that satisfies the 4 rules ($R_{sat}, R_\neg, R_\alpha, R_\beta$)
+
+We can build the tableau $T_\phi$ relative to a formula $\phi$ as a graph where:
+- the atoms of $\phi$ are the nodes
+- $\forall Xp \in \Phi_\phi, Xp \in A \iff p \in B \to$ there is an edge from $A$ to $B$
+
+Given a model $\sigma$ of $\phi$, the infinite path $\phi_\sigma: A_0, A_1, ...$ in $T_\phi$ is induced by $\sigma$ if for every position $j$ and every $p \in \Phi_\phi, (\sigma,j) \vDash p \iff p \in A_j$
+Note that:
+- for each model there exists an infinite path in $T_\phi$ induced by it
+- $\phi \in A_0$, thus $(\sigma,0) \vDash \phi$
+
+A formula $\psi \in \Phi_\phi$ *promises* $r$ if it has one of the following forms:
+- $Fr$
+- $p\ U q$
+- $\neg G \neg r$
+
+An atom *fulfills* a formula $\psi$ that promises $r$ if $\neg \psi \in A \lor r \in A$. A path is *fulfilling* if each promising formula is fulfilled infinitely many times by atoms in it
+
+Note that:
+1. Fulfilling paths induce models
+2. Models induce fulfilling paths
+3. A formula $\phi$ is satisfiable iff the tableau $T_\phi$ contains a fulfilling path $\phi = A_0, A_1, ...$ such that $\phi \in A_0$ (follows from 1. and 2.)
+
+A *non-transient strongly connected subgraph* (SCS) is fulfulling if every formula $\psi \in \Phi_\phi$ that promises $r$ is fulfilled by some atom $A \in S$
+
+An SCS $S$ is $\phi$ reachable if there exists an infinite path that leads from a $\phi$-atom to an atom $A \in S$
+
+> A formula is satisfiable if we have a reachable fulfilling SCS
+
+We can do a step forward and only considerate *Maximal SCS* (SCS not contained in larger SCS)
