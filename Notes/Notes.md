@@ -356,4 +356,66 @@ We now define the *expanded closure* of a LTL+P formula $\phi$ as the smallest s
 - $\alpha \in \Phi_\phi \land \alpha = \gamma\ U\ \psi \to X\alpha \in \Phi_\phi$
 - $\alpha \in \Phi_\phi \land \alpha = \gamma\ S\ \psi \to Y\alpha \in \Phi_\phi$
 
-The states of $A_\phi$ (tableau atom)
+**CONSTRUCTION OF THE AUTOMATON**
+
+An atom $A$ is a subset of $\Phi_\phi$ such that:
+1. $p \in A \iff \neg p \not \in A$
+2. $p \land q \in A \iff p, q \in A$, etc...
+3. $p\ U\ q \in A \iff q \in A \lor p, X(p\ U\ q) \in A$
+4. $p\ S\ q \in A \iff q \in A \lor p, Y(p\ S\ q) \in A$
+
+Having the set of nodes at our disposal, we can build the automaton $\mathcal{A}_\phi(States, edges)$: 
+
+- An atom $A$ is *initial* in $A_\phi \iff \phi \in A$ and $A$ does not contain any $Yp$ or $\neg Z p$ formulas (no requirements on the past)
+- $A$ reaches $B$ in $\mathcal{A}_\phi$ reading symbol $s$ when:
+    1. $p \in A \iff p \in s \ \ \forall p \in \Sigma \cap \Phi_\phi$
+    2. $Xp \in A \iff p \in B \ \ \forall Xp \in \Phi_\phi$
+    3. $Yp \in B \iff p \in A \ \ \forall Yp \in \Phi_\phi$
+    4. $Zp \in B \iff p \in A \ \ \forall Zp \in \Phi_\phi$
+- For each promising formula $\alpha \in \{p \ U\ q\} \cap \Phi_\phi$, the atom $A_\alpha$ is $\alpha$-fulfilling $\iff p \in A_\alpha \to q \in A_\alpha$
+    - Muller condition: $In(\rho)=F, F \in \mathcal{F}$
+    $$\mathcal{F} = \{ F \subseteq States\  |\  \forall \alpha \in \{ p\ U\ q \} \cap \Phi_\phi \ . \ \exists A_\alpha \in F \}$$
+    - Generalized Büchi condition: $In(\rho) \cap F \not = \empty, F \in \mathcal{F}$
+    $$\mathcal{F} = \{ F_\alpha \subseteq States\  |\  \forall \alpha \in \{ p\ U\ q \} \cap \Phi_\phi \ . F_\alpha \textrm{ is the set of all $\alpha$-fulfilling states} \}$$
+
+Note that the translation from $\phi$ to $\mathcal{A}_\phi$ belongs to $EXPSPACE$, but to check if the formula is satisfiable we can use Savitch's reachability method (to check if the final states are reachable from the initial states), which requires $NL$ space and allows on-the-fly generation of parts of the graph: overall, the reduction belongs to $PSPACE$
+
+# Branching temporal logic (CTL)
+
+A model $\mathcal{M}:(S,R,L)$ now features a relation $R \subseteq S \times S$ instead of a function
+
+With such structure, $\mathcal{M}$ is a graph $\to$ to obtain a tree we need to unfold it
+
+To the syntax we add quantifiers over computations (*path quantifiers*):
+
+- $Ap$: forall possibile futures, $p$ is verified
+- $Ep$: there exists a future where $p$ is verified
+
+CTL forces path and state quantifiers to be interleaved
+
+CTL* doesn't enforce any restriction (it uniforms LTL and CTL), but it requires that any formula with quantifiers begins with a path quantifier (both CTL and CTL* are sets of *state formulas*)
+
+LTL and CTL are incomparable in terms of expressiveness (both are proper fragments of CTL*)
+
+1. The following CTL formula can not be expressed in LTL: $AG(P \to EFQ)$ (because in CTL we can have infinite paths behaving differently starting from a state)
+2. The following LTL formula can not be expressed in CTL:
+$G(P \to FGP)$ (we cannot use two juxtaposed path quantifiers)
+
+# Model checking for CTL
+
+Recursive definitions for the added operators:
+
+- $EU(\alpha, \beta) = \beta \lor (\alpha \land EXEU(\alpha, \beta))$
+- $AU(\alpha, \beta) = \beta \lor (\alpha \land AXAU(\alpha, \beta))$
+
+The Model Checking procedure for CTL takes as input a formula $\alpha$ and a Kripke structure $\mathcal{M}=(M,R,V)$ and builds iteratively the set of true formulas $V(w)$ for each state $w \in M$. It proceeds iteractively on the size $i = 1, ..., |\alpha|$ of the subformulas of $\alpha$ by enumerating them and checking for each case. Let's suppose we have a subformula $\beta$ of size $i$
+
+1. $\beta$ is a propositional letter $\to$ straightforwardly build $V(w)\  \forall w \in M$
+2. $\beta = EX\gamma \to$ for each $w \in M$, if there exists a successor $v$ of $w$ such that $\gamma \in V(v)$, then $V(w) = V(w) \cup \{ \beta \}$
+3. $\beta = AX\gamma \to$ for each $w \in M$, if all successors $v$ of $w$ are such that $\gamma \in V(v)$, then $V(w) = V(w) \cup \{ \beta \}$
+4. $\beta = EU(\gamma, \delta) \to$ search for all successive states $w$ in which $\delta \in V(w)$ and proceed backwards into the precedessors of $w$ to see recursively since when the formula held (thus until when $\gamma$ was true). For all of these states $w$, we have that $V(w) = V(w) \cup \{ \beta \}$ 
+5. $\beta = AU(\gamma, \delta) \to$ the procedure is similar to 4., but it proceeds forwards to check all possible successors of a state $w \in M$. The valutation of a state $V(w)$ is incremented with $\beta$ if $\delta \in V(w)$ or if for all of its successors $v$, $AU(\gamma, \delta) \in V(v)$ (NOTE: the procedure goes forward and then "comes back" to $w$ to, in case, add $AU(\gamma, \delta)$ to its valutation)
+
+> NOTE: generally, a model checking problem is defined as $\mathcal{M},w \vDash \alpha$. The above procedure "populates" the labeling function of $\mathcal{M}$ with all the true formulae for each state $w \in M$. To actually "model check" a formula $\alpha$, we would need to execute the above procedure, require a state $w$ for the valuation and then see if $\alpha \in V(w)$
+
+Complexity: $\mathcal{O}(k(n+m))$, where $k$ is the number of times the loop runs ($|\alpha|$), $n = |M|$ and $m=|R|$. The algorithm is linear in the product of the length of the formula and the size of the model
