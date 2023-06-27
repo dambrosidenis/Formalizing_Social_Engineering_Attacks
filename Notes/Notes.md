@@ -275,3 +275,41 @@ An SCS $S$ is $\phi$ reachable if there exists an infinite path that leads from 
 > A formula is satisfiable if we have a reachable fulfilling SCS
 
 We can do a step forward and only considerate *Maximal SCS* (SCS not contained in larger SCS)
+
+# Model checking for LTL
+
+Given an atom $A$, $state(A)$ is the conjunction of all of its state formulas in $A$ (e.g: $p, q, p \land q, \neg p$, etc...). $state(A)$ is satisfiable for $R_{sat}$
+
+An atom $A$ is *consistent* with a state $s$ if $s \vDash state(A)$
+
+Let:
+- $\theta: A_0,A_1,...$ be a path in $T_\phi$
+- $\sigma:s_0,s_1,...$ be a computation of $P$
+
+We have that $\theta$ is a *trail* of $T_\phi$ over $\sigma$ if $A_j$ is consistent with $s_j$, forall $j$
+
+The successor (outgoing edges) relation in $T_\phi$ is called $\delta$
+
+Given:
+- A finite state program $P$
+- An LTL formula $\phi$
+
+We can build the *behaviour graph* of $(P, \phi)$, denoted $\mathcal{B}_{(P, \phi)}$ as the product of the graph for $P$ ($G_P$) and the tableau for $\phi$. Note that:
+
+1. Nodes are in the form $(s,A)$, where $s$ is a state and $A$ an atom
+2. There is a *$\tau$-labeled edge* from $(s,A)$ to $(s',A')$ if:
+    - $s'$ is a $\tau$-successor of $s$
+    - $A' \in \delta(A)$ in $T_\phi$ (pruned)
+3. A node is *$\phi$-initial* if:
+    - $s$ is an initial state for $P$
+    - $\phi \in A$ and $s$ is consistent with $A$
+
+The algorithm for building $\mathcal{B}_{(P,\phi)}$ starts from adding all $\phi$-initial nodes and increases the graph with the relative reachable nodes (and arcs) until a fixpoint (no more nodes added) is reached
+
+> Note that fairness conditions can be expressed as LTL formulas $\to$ I can keep them "in the background" while checking the graph
+
+**PROPOSITIONS**
+
+1. An infinite sequence $\pi: (s_0, A_0),(s_1, A_1), ...$, with $(s_0, A_0)$ is an initial $\phi$-node, is a path in $\mathcal{B}_{(P, \phi)}$ $\iff \sigma_\pi : s_0,s_1,...$ is a run of $P$ and $\theta_\pi$ is a trail of $T_\phi$ over $\sigma_\pi$
+2. There is a $P$-computation that satisfies $\phi \iff$ there is an infinite path $\pi$ in $\mathcal{B}_{(P, \phi)}$, starting from an initial $\phi$-node, such that $\sigma_\pi$ is a computation and $\theta_\pi$ is a fulfilling trail over $\sigma_\pi$
+
