@@ -313,3 +313,47 @@ The algorithm for building $\mathcal{B}_{(P,\phi)}$ starts from adding all $\phi
 1. An infinite sequence $\pi: (s_0, A_0),(s_1, A_1), ...$, with $(s_0, A_0)$ is an initial $\phi$-node, is a path in $\mathcal{B}_{(P, \phi)}$ $\iff \sigma_\pi : s_0,s_1,...$ is a run of $P$ and $\theta_\pi$ is a trail of $T_\phi$ over $\sigma_\pi$
 2. There is a $P$-computation that satisfies $\phi \iff$ there is an infinite path $\pi$ in $\mathcal{B}_{(P, \phi)}$, starting from an initial $\phi$-node, such that $\sigma_\pi$ is a computation and $\theta_\pi$ is a fulfilling trail over $\sigma_\pi$
 
+**DEFINITIONS/FACTS**
+
+Given a behaviour graph $\mathcal{B}_{(P, \phi)}$
+
+1. $(s',A')$ is a *$\tau$-successor* of $(s,A)$ if there is a $\tau$ edge such that $(s,A) \to^\tau (s'A')$
+2. A transition $\tau$ is *enabled* on $s \to \tau$ is enabled on all $(s,A)$
+
+Given a subgraph $S \subseteq \mathcal{B}_{(P,\phi)}$
+
+3. A transition $\tau$ is *taken* in $S$ if there are two nodes $A, B \in S \ . \  A \to^\tau B$
+4. $S$ is *just* (*compassionate*) if every just (compassionate) transition $\tau \in \mathcal{J}$ ($\tau \in \mathcal{C}$) is either taken in $S$ or is disabled on some (all) nodes in $S$
+5. $S$ is *fair* if is both just and compassionate
+6. $S$ is *fulfilling* if every promising formula is fulfilled by an atom in a node of $S$
+7. $S$ is *adequate* if it is both fair and fulfilling
+
+Our objective is now to find an adequate strongly connected subgraph for the behavior graph
+
+Note that:
+
+- If $S \subseteq \mathcal{B}_{(P, \phi)}$ is just, then the whole graph $\mathcal{B}_{(P, \phi)}$ is just
+- If $S \subseteq \mathcal{B}_{(P, \phi)}$ is fulfilling, then the whole graph $\mathcal{B}_{(P, \phi)}$ is fulfilling
+- If $S \subseteq \mathcal{B}_{(P, \phi)}$ is compassionate, then it's not necessarily true that the whole graph $\mathcal{B}_{(P, \phi)}$ is compassionate
+
+If we have a strongly connected subgraph $S$ that is not compassionate, we can always recursively search within its SCSs if there is any adequate $S'$ (by always checking also for justice and fulfilness)
+
+# Translation from LTL+P to Büchi automata
+
+New operators:
+
+- $Yp$: the past timestamp has to exist (not trivial because the past is always finite) and $p$ must be satisfied at it
+- $Zp$: $p$ must be satisfied at the past instant if it exists
+- $p\ S\  q$: there must have been a timestamp in the past in which $q$ was satisfied and since then until the last timestamp $p$ has been satisfied at each timestamp
+
+Note that $\neg Yp = Z \neg p$
+
+We now define the *expanded closure* of a LTL+P formula $\phi$ as the smallest set of formulas such that:
+
+- $\phi \in \Phi_\phi$
+- $\alpha \in \Phi_\phi \to \neg \alpha \in \Phi_\phi$
+- $\alpha \in \Phi_\phi \land \beta \textrm{ subformula of } \alpha \to \beta \in \Phi_\phi$
+- $\alpha \in \Phi_\phi \land \alpha = \gamma\ U\ \psi \to X\alpha \in \Phi_\phi$
+- $\alpha \in \Phi_\phi \land \alpha = \gamma\ S\ \psi \to Y\alpha \in \Phi_\phi$
+
+The states of $A_\phi$ (tableau atom)
