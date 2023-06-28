@@ -419,3 +419,128 @@ The Model Checking procedure for CTL takes as input a formula $\alpha$ and a Kri
 > NOTE: generally, a model checking problem is defined as $\mathcal{M},w \vDash \alpha$. The above procedure "populates" the labeling function of $\mathcal{M}$ with all the true formulae for each state $w \in M$. To actually "model check" a formula $\alpha$, we would need to execute the above procedure, require a state $w$ for the valuation and then see if $\alpha \in V(w)$
 
 Complexity: $\mathcal{O}(k(n+m))$, where $k$ is the number of times the loop runs ($|\alpha|$), $n = |M|$ and $m=|R|$. The algorithm is linear in the product of the length of the formula and the size of the model
+
+# Symbolic model checking
+
+If a system is made up of multiple components that can make transitions in parallel, we must take into consideration the cartesian product of the models of all the components for model checking $\to$ there can be a state explosion
+
+Possible approaches:
+
+1. Symbolic model checking: manipulating sets of states through their definitions instead of actual single states. It requires the fast application of boolean operations ($\to$ OBDDs)
+2. Partial ordering reduction: not all orderings of events in a concurrent system are relevant for the properties of interest. By considering only a subset of relevant orderings, the exploration of the state space is significantly pruned
+
+### OBDDs
+
+In a *decision tree*, we have that each node is either terminal (labelled with $0$ or $1$) or non-terminal (labelled with a variable and with two successors, $low$ and $high$)
+
+Decision trees define recursively boolean functions $f_v(x_1,...,x_n)$ as follows:
+
+1. If $v$ is a terminal node, then $f_v(x_1,...,x_n) = value(v) $
+2. Else, considering $var(v) = x_i$, we have that
+$$f_v(x_1,...,x_n) = (\neg x_i \land f_{low(x_i)}(x_1,...,x_n)) \lor (x_i \land f_{high(x_i)}(x_1,...,x_n))$$
+
+Our objective is to obtain a graph without isomorphic subtrees $\to$ define the same function, but in a much more compact way
+
+**Building an OBDD from a DT**
+3 rules to apply, in order, until a fixpoint is reached
+
+1. Remove duplicate terminal and redisrect all edges to the representative of the terminals
+2. Remove duplicate non-terminal nodes: if two non terminal nodes $u$ and $v$ are such that $var(u)=var(v), high(u)=high(v), low(u)=low(v)$, then eliminate $v$ and redirect all incoming edges to $u$
+3. Remove redundant tests: if a non-terminal node $v$ is such that $low(v)=high(v)$, then delete $v$ and redirect all of its incoming edges into $low(v)$
+
+The size of the diagram depends on the ordering of the variables, but finding an optimal ordering is an $NP$-complete problem $\to$ generally we use some heuristic
+
+We want to show now how we can implement efficiently boolean operations of OBDDs
+
+RESTRICT: $f|_{x_i \leftarrow b}(x_1,...,x_n) = f(x_1,...,x_{i-1},b,x_{i+1},...,x_n)$
+
+In the OBDD, if we restrict a variable $x_i$ to a value $b$, for each node $w \ \ s.t. \ \ var(w) = x_i$, we replace $w$ by $low(w)$ if $b=0$ and by $high(w)$ else
+
+Note that we can simplify functions through *Shannon expansion*:
+
+$$f = (\neg x \land f|_{x \leftarrow 0}) \lor (x \land f|_{x \leftarrow 1})$$
+
+Similarly, we can APPLY boolean operations $*$ quickly on OBDDs representing functions $f,f'$ using the following rules (considering we want to merge two OBDDs rooted in $v,v'$, whose variables are $x$ and $x'$)
+
+1. $v,v'$ terminal nodes $\to$ $f*f' = v*v'$
+2. $x=x' \to f*f' = (\neg x \land (f|_{x \leftarrow 0} * f'|_{x \leftarrow 1}) \lor (x \land (f|_{x \leftarrow 1}) * f'|_{x \leftarrow 1}))$
+3. $x<x' \to f*f' = (\neg x \land (f|_{x \leftarrow 0} * f')) \lor (x \land (f|_{x \leftarrow1}) * f')$
+4. $x>x' \to$ dual of 3.
+
+This may lead to an exponential blow-up, but we can use an hash table to keep track of previous operations to avoid producing the same result twice. In this way, the number of subproblems becomes bounded by the product of the sizes of the OBDDs for $f$ and $f'$
+
+# Fixpoint characterization of CTL operators
+
+Given a Kripke structure $\mathcal{M} = (S,R,L)$, we have that
+
+- each $n$-ary relation in $r \in R$ can be represented by an arity $n$ characteristic function $f_r$
+- we can use $\lceil \log_2 |S| \rceil$ bits to represent $S$
+- we can introduce a function for each proposition letter that captures the set of sets where it is true
+
+We define a predicate transformer $\tau$ as a function
+
+$$\tau: 2^S \to 2^S$$
+
+The set of states that satisfy a generic CTL formula will be characterized as the least/greatest fixpoint of a suitable predicate transformer
+
+> $2^S$ can be seen as a lattice closed under $\subseteq$
+
+Note that:
+
+- $true = S$
+- $false = \empty$
+
+because of the characteristic function characterization of relations
+
+**DEFINITIONS**
+
+1. $\tau$ is *monotonic* if $P \subseteq Q \implies \tau(P) \subseteq \tau(Q)$
+2. $\tau$ is *$\cup$-continuous* if $P_1 \subseteq P_2 \subseteq ... \implies \tau(\bigcup_i P_i) = \bigcup_i \tau(P_i)$
+3. $\tau$ is *$\cap$-continuous* if $P_1 \supseteq P_2 \supset ... \implies \tau(\bigcap_i P_i) = \bigcap_i \tau(P_i)$
+4. $\tau^i(z) = \tau(\tau(...(z)))$
+
+From Tarsky, we know that if $\tau$ is monotonic, then it must have a *least fixpoint* $\mu z. \tau z$ and a *greatest fixpoint* $\nu z . \tau z$:
+
+- $\mu z . \tau z = \bigcap (z : \tau(z) \subseteq z) \implies$ if $\tau$ monotonic and $\cup$-continuous, then $\mu z . \tau z = \bigcup_i \tau^i (false)$
+- $\nu z . \tau z = \bigcup (z : \tau(z) \supseteq z)\implies$ if $\tau$ monotonic and $\cap$-continuous, then $\nu z . \tau z = \bigcap_i \tau^i (true)$
+
+**LEMMAS**
+
+1. $S$ finite and $\tau$ monotonic $\implies \tau$ $\cup$ and $\cap$ continuous
+2. $\tau$ monotonic $\implies$, for every $i$, $\tau^i(false) \subseteq \tau^{i+1}(false)$ and $\tau^i(true) \supseteq \tau^{i+1}(true)$
+3. $S$ finite, $\tau$ monotonic $\implies$ $\exists i_0, j_0 . \forall i, j \geq i_0, j_0, \tau^i(false) = \tau^{i_0}(false) \land \tau^j(true) = \tau^{j_0}(true)$
+4. $S$ finite, $\tau$ monotonic $\implies$ $\exists i,j . \tau^i(false) = \mu z . \tau(z) \land \tau^j(true) = \nu z . \tau z$
+
+We can use a simple fixpoint algorithm to compute the two fixpoints (the complexity is $\mathcal{O}(|S|)$)
+
+Let's consider the following operators:
+
+- $AF f_1 = \mu z . f_1 \lor AX z$
+- $EF f_1 = \mu z . f_1 \lor EX z$
+- $AG f_1 = \nu z . f_1 \land AX z$
+- $EG f_1 = \nu z . f_1 \land EX z$
+- $A[ f_1 \ U \ f_2 ] = \mu z . f_2 \lor (f_1 \land AX z)$
+- $E[ f_1 \ U \ f_2 ] = \mu z . f_2 \lor (f_1 \land EX z)$
+
+For each of the transformers, we should prove the 4 lemmas above.
+
+Now we can exploit OBDDs and fixpoint characterizations of CTL operators to produce a simple algorithm for *symbolic model checking*
+
+Given a kripke structure $\mathcal{M}=(S,R,L)$ and a formula $\alpha$, the procedure $CHECK$ works (according to the form of $\alpha$) in the following way:
+
+- $\alpha$ propositional letter $\implies$ dealt with the labeling function $L$
+- boolean connectives $\implies$ dealt with APPLY
+- temporal modalities:
+    - $EX f_1 \implies CHECK_{EX}(CHECK(f_1))$
+    - $EG f_1 \implies CHECK_{EG}(CHECK(f_1))$
+    - $E(f_1 \ U \ f_2) \implies CHECK_{EU}(CHECK(f_1), CHECK(f_1))$ 
+
+where
+- $CHECK : CTL \to OBDD$
+- $CHECK_{EX} : OBDD \to OBDD$
+$$CHECK_{EX}(f(\overline(v))) = \exists \overline(v)' . [R(\overline{v}, \overline{v}') \land f(\overline{v}')]$$
+- $CHECK_{EG} : OBDD \to OBDD$: use the greatest fixpoint algorithm with an OBDD for $true$.
+- $CHECK_{EU} : OBDD \times OBDD \to OBDD$: use the least fixpoint algorithm with an OBDD for $false$
+
+# Bounded Model Checking
+
