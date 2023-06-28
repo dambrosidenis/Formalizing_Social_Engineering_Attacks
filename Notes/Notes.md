@@ -544,3 +544,111 @@ $$CHECK_{EX}(f(\overline(v))) = \exists \overline(v)' . [R(\overline{v}, \overli
 
 # Bounded Model Checking
 
+We can encode an explicit Kripke structure $\mathcal{M}_\mathcal{E} = (S,I,T,L)$ into a corresponding a symbolic one $\mathcal{M}_\mathcal{S}=(\overline{s}, f_i, f_t, \{ f_{p_1}, ..., f_{p_k} \})$ such that
+
+- $\overline{s}$ is a set of state boolean variables
+- $m \vDash f_i(s) \iff m \in I$
+- $m, m' \vDash f_t(s,s') \iff (m,m') \in T$
+- $m \vDash f_p(s) \iff p \in L(m)\ \ \ \forall p \in RANGE(L)$
+
+A *path/trace* of $\mathcal{M}_\mathcal{S}$ is an infinite sequence of assignments to the state variables that respect $f_i$ and $f_t$
+
+Bounded model checking (BMC) checks if there are executions of length at most $k$ that satisfy a formula. If not, $k$ is incremented (originally $0$)
+
+There are 2 main types of finite traces $\pi$ for BMC:
+
+- $\pi$ contains a loop $\implies$ apply LTL semantics
+- $\pi$ is loop-free $\implies$ apply bounded semantics
+
+We want to translate BMC to SAT
+
+1. Firstly we want to unfold the symbolic model $\mathcal{M} = (S, I, T, L)$
+
+$$\llbracket \mathcal{M} \rrbracket_k := I(s_0) \land \bigwedge_{i=0}^{k-1} \land \ T(s_i, s_{i+1})$$
+
+2. Then we check if we have a loop in the model reachable in less than $k$ steps
+
+$$_iL_k := T(s_k, s_l)$$
+$$L_k:= \bigvee_{i=0}^k {_i}L_l$$
+
+3. Then we encode the semantics for loop formulae
+4. Finally we encode the overall semantics
+
+$$\llbracket \mathcal{M}, \phi \rrbracket_k := \llbracket \mathcal{M} \rrbracket_k \land ( (\neg L_k \land \llbracket \phi \rrbracket_k^0) \lor \bigvee_{i=0}^k (_iL_k \land _l\llbracket \phi \rrbracket_k^0) )$$
+
+# Synthesis
+
+> Given a S1S formula $\phi(X,Y)$, build a Mealy automaton $\mathcal{M}$, with input alphabet $\Sigma = \{ 0,1 \}$ and output alphabet $\Gamma = \{ 0, 1 \}$, such that, for every input sequence $\alpha \in \{ 0, 1 \}^\omega$, $\mathcal{M}$ generates an output sequence $\beta \in \{ 0, 1 \}^\omega$ such that $(\omega, +1) \vDash \phi [P_\alpha, P_\beta]$ (where $P_\alpha, P_\beta$ are the interpretations of $X,Y$ induced by $\alpha, \beta$), or it answers that such an automaton does not exist
+
+Idea:
+
+1. S1S
+2. Muller automaton
+3. Muller games
+4. Parity games
+
+**S1S $\to$ Muller automaton**
+
+Procedure: S1S formula can be translated to a Büchi automata which checks words over $(\{ 0,1 \} \times \{ 0,1 \} )$, which, in turn, can be translated to Muller automata
+
+**Muller automata $\to$ Muller games**
+
+We must define the arena as a graph
+
+- For each $A$ state $q$ and each bit $b$, we introduce a transition $(q,b)$ labeled by $b$ to a new B-state
+- For each bit $c$, we introduce a transition labeled by $c$ from the B-state $(q,b)$ to the A-state $p$ whenever in the original Muller automaton it is possible to move from $q$ to $p$ via an edge labeled by the pair $(b,c)$
+- For such a state $p$, we define $c$ as the output bit and we denote it by $out(q,b,p)$
+
+The arena can be defined as $G = (Q, Q_A, E)$, where
+
+- $G$ is bipartite into $Q_A \subseteq Q$ and $Q_B = Q - Q_A$
+- $E \subseteq Q \times Q$
+- There are no deadlocks
+- $Q$ is finite
+
+A play on $G$ from $q$ is an infinite path $\rho$ on $G$ with initial state $q$. A chooses the outgoing transitions of $Q_A$ nodes and B chooses the outgoing transitions of $Q_B$ nodes.
+
+A game is a pair $(G,W)$, where $W \subseteq Q^\omega$ is the winning condition for player B
+
+> B wins a play $\rho \iff \rho \in W$
+
+> We are interested in *finitely describable* winning conditions
+
+Two main types of winning conditions:
+
+1. *Muller games*: $Inf(\rho) \in \mathcal{F}$
+2. *Weak Muller games*: $Occ(\rho) \in \mathcal{F}$ (where $Occ(\rho)$ is the set of states that appear in $\rho$)
+3. *Reachability games*: $\exists q \in \rho . q \in \mathcal{F}$
+
+A *strategy* is for a player is a mapping $f: Q^+ \to Q$ such that, given the history of the game up to a certain state specifies the next step
+
+A strategy $f$ for a player is a *winning strategy* if each play played according to it, is won by him
+
+$W_P := \{ q \in Q \ | \ \textrm{P wins starting from } q\}$ is the *winning region* for player P
+
+$W_A \cup W_B = Q \iff$ the game is *determined*
+
+The *solution of a game* $(G,W)$, given an initial state $q$, consists of two steps:
+
+1. Check whether $q \in W_A$ or $q \in W_B$
+2. Build a finitely describable winning strategy for $A$ or $B$ from $q$ (based in which winning region $q$ lies)
+
+Two types of strategies of interest:
+
+- A strategy is *positional* if it only depends on the current state
+- A strategy is *finite state* if it can be computed by a Mealy automaton $\mathcal{S}$
+
+> *Büchi-Landweber theorem*: Muller games are determined and for each Muller game $(G, \mathcal{F})$, where $G$ has $n$ states, the winning regions for the two players can be effectively determined an it is possible to build, for each state $q \in G$, a finite winning strategy from $q$ (for the winning player), making use of a memory with $n! \cdot n$ states (we need to keep track of ordering to discriminate states that we encountered finitely and infinitely many times)
+
+Now we show that:
+
+1. We can build a positional strategy for a Reachability Game
+2. We can transform the strategy into a strategy for a Weak Muller game
+3. We can rewrite a Weak Muller Game into a Weak Parity Game
+
+> Determinability of Reachability games, along with the computability of the winning strategies, is proved via attractors ($Attr_P^i(F)$ is the set of states that player $P$ can force a visit in $F$ in at most $i$ moves
+
+> It can be shown that $\bigcup_{i=0}^{|Q|} Attr_P^i(F) = W_P$)
+
+
+In general positional strategies do not suffice $\implies$ we can build Mealy automata with $2^Q$ as state space (where $Q$ is the state space of the game)
