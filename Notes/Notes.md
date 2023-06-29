@@ -640,15 +640,130 @@ Two types of strategies of interest:
 
 > *Büchi-Landweber theorem*: Muller games are determined and for each Muller game $(G, \mathcal{F})$, where $G$ has $n$ states, the winning regions for the two players can be effectively determined an it is possible to build, for each state $q \in G$, a finite winning strategy from $q$ (for the winning player), making use of a memory with $n! \cdot n$ states (we need to keep track of ordering to discriminate states that we encountered finitely and infinitely many times)
 
-Now we show that:
+**Muller games $\to$ Parity Games**
 
-1. We can build a positional strategy for a Reachability Game
-2. We can transform the strategy into a strategy for a Weak Muller game
-3. We can rewrite a Weak Muller Game into a Weak Parity Game
+*Least Appearance Record* (LAR): set of states encountered during a play, ordered according to their last occurrence/appearance. If the current state was already visited in the past, then it is moved from the position $h$ (*hit*) to the first position of the new LAR
+
+Given a LAR $((i_1,...,i_r), h)$, its *hitting set* is $i_1,...,i_h$
+
+The winning condition for the play $\rho$ of a Muller game can be reformulated as $H \in \mathcal{F}$ ($Inf(\rho) \equiv H$, where $H$ is the hitting set of the maximum it that occurs infinitely often in the sequence of LARs $\rho'$ corresponding to $\rho$)
+
+$\to$ B wins $\rho' \iff$ the greatest color that occurs infinitely oftein in $c(\rho'(0)), c(\rho'(1)), ...$ is even, where
+
+$$
+c(((i_1,...,i_r),h)):=
+\begin{cases}
+2h \textrm{  if  } \{ i_1,...,i_r \} \in \mathcal{F}\\
+2h-1 \textrm{ else}
+\end{cases}
+$$
+
+> A colored graph $(G,c)$ with the parity condition is said a *parity game*
+
+A Muller game $(G, \mathcal{F})$ can be simulated by a parity one $(G',c)$ by means of a finite state machine that transforms a play $\rho$ on $G$ in a corresponding sequence $\rho'$ of LARs
+
+
+
+**Additional notes on reachability games and positional strategies**
 
 > Determinability of Reachability games, along with the computability of the winning strategies, is proved via attractors ($Attr_P^i(F)$ is the set of states that player $P$ can force a visit in $F$ in at most $i$ moves
 
 > It can be shown that $\bigcup_{i=0}^{|Q|} Attr_P^i(F) = W_P$)
 
-
 In general positional strategies do not suffice $\implies$ we can build Mealy automata with $2^Q$ as state space (where $Q$ is the state space of the game)
+
+# Planning as Symbolic Model Checking
+
+> Finding a squence of actions that bring a system from an initial state to a goal state, given a set of possible actions
+
+- Domain
+    - *Fluents* (inertial and non-inertial)
+    - *States*
+    - *Actions*
+- Initial states
+- Final states
+
+We can have multiple versions of the problem:
+
+- Deterministic/Non-deterministic
+- Observable/Non-observable
+- With/Without external events
+- Finite/Infinite discrete/continue domains for fluents
+- With/Without extended goals
+
+3 types of plans:
+
+1. *Situated*: the evolution of the plan may be influenced by the environment
+2. *Universal*: each state has at least one action associated with it
+3. *Conformant plans*: null observability
+
+Planning as model checking: the planning domain is $(P,S,A,R)$:
+
+- $P$ a finite set of proposition letters ($p_{(i,j)} \iff fluent_i = value_j$)
+- $S \subseteq 2^P$ a finite set of states
+- $A$ a finite set of actions
+- $R \subseteq S \times A \times S$ the transition relation/function
+
+> Action $a$ is *enabled* in state $s$ if there is a state $s'$ such that $R(s,a,s')$
+
+A *plan* can be represented by means of a state-action table $SA$ of pairs $(s,a), s \in S, a, \in A, a$ enabled in $s$
+
+The *execution structure* induced by the action table $SA$ of a planning domain $(P,S,A,R)$ from a set of initial states $I$ is a Kripke structure $K=(Q,T)$ where $Q \subseteq S$ and $T \subseteq S \times S$ are the minimal sets such that
+- $s \in I \implies s \in Q$
+- $s \in Q \land \exists (s,a) \in SA \ . \ R(s,a,s') \implies s' \in Q \land T(s,s')$
+
+A state $s \in Q$ is a *terminal state* of $K$ if $\not \exists s' \in Q . T(s,s')$
+
+An execution path of $K from $s_0 \in I$ is a sequence of states of $Q$ such that, forall states $s_i$ in the sequence,
+
+1. $s_i$ us the last state of the sequence
+
+or
+
+2. $T(s_i,s_{i+1})$
+
+$s'$ is *reachable* from a state $s$ if there is a path from $s$ to $s'$
+
+If all execution paths in $K$ are finite, then $K$ is *acyclic*
+
+A *planning problem* for a planning domain $D=(P,S,A,R)$ is a triple $(D,I,G)$, where:
+
+- $I \subseteq Q$ is the set of initial states
+- $G \subseteq S$ is the set of goal states
+
+> Remember: planning domain $D=(P,S,A,R) \to$ state action table $SA \to$ execution structure $K=(Q,T) \to$ planning problem $(D,I,G)$
+
+The solutions of a planning problem satisfy a reachability requirement:
+
+- *Weak solutions*: $\forall i \in I \ \exists g \in G . g \textrm{ terminal in } K \land i \leadsto^K g$
+- *Strong solutions*: $K$ acyclic and $\forall k \in K, k \textrm{ terminal in } K, k \in G$
+- *Strong cyclic solutions*: $\forall q \in Q, \exists k \in K, k \textrm{ terminal in } K \ . \ q \leadsto^K k \land \forall k \in K, k \textrm{ terminal in } K, k \in G$
+
+$\to$ by requiring fairness on strong acyclic solutions, we are sure that we will achieve a solution in a finite amount of time
+
+We can transform a nondeterministic $SA$ into a deterministic one via *determinization* $\to$ a non-deterministic $SA$ is a solution to a planning problem if all of its determinizations are
+
+**Symbolic representation of a planning domain**
+
+Given a planning domain $(P,S,A,R)$,
+
+1. We associate a boolean variable to each fluent in $P$
+2. We represent $S$ as a vector $\vec{x}$
+    - A state $s \in S$ is specified by a formula $\xi(s)$
+    - A set of states $Q \subseteq S$ is represented as $\xi(Q) = \bigvee_{s \in Q} \xi(s)$
+3. We represent actions as boolean variables (we use distinct varibales to allow the representation of cuncurrent actions)
+4. We represent transitions as triples $(state, action, state)$, where the two states vectors must have the same variables, in the same order
+4. We represent the state-action table as $SA(\vec{x}, \vec{\alpha})$
+    - States of the table: $\textrm{StatesOf}(SA) = \exists \vec{\alpha} (SA(\vec{x}, \vec{\alpha}))$
+    - Actions of the table: $\textrm{ActionsOf}(SA) = \exists \vec{x} (SA(\vec{x}, \vec{\alpha}))$
+
+We construct $SA$ tables through the following formulae:
+
+- *Weak preimage*: $\exists \vec{x}' (R(\vec{x}, \vec{a}, \vec{x}') \land Q(\vec{x}'))$
+- *Strong preimage*: $\forall \vec{x}' (R(\vec{x}, \vec{a}, \vec{x}') \to Q(\vec{x}')) \land APPL(\vec{x}, \vec{\alpha})$, where $APPL(\vec{x}, \vec{\alpha}) = \exists \vec{x}'(R(\vec{x},\vec{\alpha},\vec{x}'))$
+
+States can be represented by valutations:
+
+- General states: $State = \bigwedge_{\textrm{ALWAYS } P} P$
+- Initial states: $Init = State \land \bigwedge_{\textrm{INITIALLY } P} P$
+- Final states: $Goal = State \land \bigwedge_{\textrm{GOAL } P} P$
