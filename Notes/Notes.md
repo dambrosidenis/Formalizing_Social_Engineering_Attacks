@@ -23,16 +23,35 @@ If it satisfies only initiality and consequentiality, it is called a *run*
 
 A state is *P-accessible* if it occours in some P-computation
 
-Evolution of an *SLP* program:
+Evolution of an *SLP* program can be modeled through FTS semantics:
 
 - $\pi$ control variable
 - $Y$ data variables
+- $\theta = \phi \land \pi = \{[l_1], ..., [l_k]\}$ requires the initial condition $\phi$ to hold and the initial control to be at the initial positions $([l_1],...,[l_k])$
+- $\forall \tau \in \mathcal{T}, \tau \not = \tau_I, \tau$ is *self-disabling*
 - $move(L,\hat{L}) = L \subseteq \pi \land \pi' = (\pi - L) \cup \hat{L}$ this moves the control of the program (moreless like incrementing the program counter)
 - $pres(U) = \bigwedge_{u \in U} (u' = u)$ inertia of non modified variables
 
+We must associate a transition relation foreach instruction in SLP
+
 **Example**
-- Intruction: $l: \ \overline{u}:=\overline{e};\ \hat{l}:$
-- $\rho_l: move(l, \hat{l}) \land \hat{u}' = \hat{e} \land (pres(Y) - \{\hat{u}\})$
+- $l: \ \overline{u}:=\overline{e};\ \hat{l} \implies \rho_l: move(l, \hat{l}) \land \overline{u}' = \overline{e} \land (pres(Y) - \{\overline{u}\})$
+- $l: \ \textrm{await } c; \ \hat{l} \implies \rho_l: move(l,\hat{l}) \land c \land pres(Y)$
+
+Note that:
+- $l: \ \textrm{noncritical}; \ \hat{l} \implies \rho_l: move(l, \hat{l}) \land pres(Y)$
+- $l: \ \textrm{critical}; \ \hat{l} \implies \rho_l: move(l, \hat{l}) \land pres(Y)$
+
+But the two instructions will be different because we will require different termination conditions
+
+**Fairness conditions**
+
+- Justice: all transitions but $\tau_I$ and the ones associated to *noncritical*
+- Compassion (transitions associated to ...):
+    - *send* and *receive*
+    - grouped instructions that include communications
+    - *request*
+
 
 Properties:
 
@@ -53,7 +72,7 @@ Naive algorithm: enumeration over $\Sigma$ and equivalence queries
 
 Complex algorithm: uses Myhill-Nerode equivalence relativized over a test set $T$
 
-$$(\forall t \in T\ \  ut \leftrightarrow vt \in L_0) \to u \approx_{L_0, T}$$
+$$(\forall t \in T\ \  ut \leftrightarrow vt \in L_0) \implies u \approx_{L_0, T}$$
 
 Note:
 - If $T = \empty$, we have a single equivalence class
@@ -69,6 +88,7 @@ Learner strategy:
 
 1. Begin with $S=T=\{\epsilon\}$
 2. Enlarge $S$ until it is $T$-complete while keeping $T$-minimality
+> We want to find a pair $sa, s \in S, a \in \Sigma$, such that $sa$ belongs to a "new" equivalence class: $\forall s' \in S \exists t \in \Sigma . Membership(sat) \not = Membership(s't)$
 3. Build $\mathcal{A}$ with:
     - state set $S$
     - transitions $\delta(s,a)=s_a$
@@ -86,15 +106,15 @@ The evaluation game: $M \vDash \phi \iff$ Eve has a strategy to win $G_{\phi,M}$
 
 Our objective is to show that a property $P$ (e.g.: strongly connected components) is not definable within a certain theory
 
-1. $P$ is defined by $\phi$ if for every $M$, $M \in P \iff M \vDash \phi$
-2. $M,M'$ are *elementary equivalent if for every $\phi$, $M \vDash \phi \iff M' \vDash \phi$
+1. $P$ is defined by $\phi$ if, for every $M$, $M \in P \iff M \vDash \phi$
+2. $M,M'$ are *elementary equivalent* if, for every $\phi$, $M \vDash \phi \iff M' \vDash \phi$
 
 **LEMMA**: if there are $M, M'$ such that $M \in P, M' \not \in P, M,M'$ elementary equivalent, then $P$ is not definable in $FO$
 
 In practice we want to show that there is no $\phi$ that defines $P$, thus $P$ is not definable in $FO$
 
 3. $\phi$ has *quantifier rank* $n$ if it has at most $n$ nested quantifiers
-4. $M, M'$ are *$n$-equivalent* if for every $\phi$ with quantified rank $n$, $M \vDash \phi \iff M' \vDash \phi$
+4. $M, M'$ are *$n$-equivalent* if, for every $\phi$ with quantified rank $n$, $M \vDash \phi \iff M' \vDash \phi$
 
 **LEMMA (STRONGER VERSION)**: if, for every $n$, there are $M,M'$ such that $M \in P, M' \not \in P, M,M'$ $n$-equivalent, then $P$ is not definable in $FO$
 
@@ -121,7 +141,7 @@ By induction based on the possible types of subformula:
 - conjunction: Eve mirrors the move in $G_{M,\phi}$
 - disjunction: Adam picks the same conjunct he picked in the $G_{M',\phi}$ game
 - existential quantification: Eve binds a variable $x$, the Spoiler places the pebble in the relative position, the Duplicator answers with another variable and Eve binds the value of $x$ to the value picked by the Duplicator in $G_{M', \phi}$
-- universal quantification: same steps, bu executed by Adam 
+- universal quantification: same steps, but executed by Adam 
 
 > Our objective is to keep the games $G_{M,\phi}, G_{M,M'}, G_{M',\phi}$ synchronized
 
@@ -161,6 +181,7 @@ Easy proof by induction on the structure of the star free expression: corrispond
 **$W$ first-order definable in $S1S_A \to W$ star-free language**
 
 The proof is by induction on the quantifier depth of the formula
+
 Hardest case: existential quantifier $\exists x \phi(x)$ of depth $n+1$ ($\to$ we have a star free expression for $\phi(x)$ by inductive hypothesis)
 
 We want to rewrite $\exists x \phi(x)$ in the form
@@ -177,14 +198,14 @@ We introduce two equivalence relations:
 Facts:
 1. Both relations are of finite index
 2. For any $n$, any equivalence class of either relation can be defined by a sentence (or formula) of quantifier depth $n$ (moreless like a characteristic function)
-3. Any formula $\phi(x)$ is equivalent to a disjunction of formulas $\phi_{\underline{W}}(x)$
+3. Any formula $\phi(x)$ is equivalent to a finite disjunction of formulas $\phi_{\underline{W}}(x)$
 4. The two relations are congruences
     - $(u \equiv_n v \land u' \equiv_n v') \to uu' \equiv_n vv'$
     - $(u \equiv_n v \land a \in A \land u' \equiv_n v') \to (uau', |u|+1) \equiv_n (vav', |v|+1)$
 
 The proof of 4. is based on the EF-game theoretic characterization of $\equiv_n$ and $\equiv_{(n,1)}$: if Duplicator has a $n$-round strategy for games $G_{u,v}$ and $G_{u',v'}$, then it has an $n$-round strategy for $G_{uu',vv'}$
 
-Note that $\exists x \phi (x) \iff \bigvee_{\underline{W}}\exists x \phi_{\underline{W}} (x)$. Let's consider a triple $(U,a,V)$ with $U,V \equiv_n$-classes. If there exists $u_0 \in U$ and $v_0 \in V$ such that $(u_0av_0, |u_0|+1) \in \underline{W}$, then by 4. it holds that $(uav, |u|+1) \in \underline{W}$ forall $u \in U, v \in V$. Thus $UaV$ satisfies $\exists x \phi_{\underline{W}} (x)$
+Note that $\exists x \phi (x) \iff \bigvee_{\underline{W}}\exists x \phi_{\underline{W}} (x)$ because of 3. Let's consider a triple $(U,a,V)$ with $U,V \equiv_n$-classes. If there exists $u_0 \in U$ and $v_0 \in V$ such that $(u_0av_0, |u_0|+1) \in \underline{W}$, then by 4. it holds that $(uav, |u|+1) \in \underline{W}$ forall $u \in U, v \in V$. Thus $UaV$ satisfies $\exists x \phi_{\underline{W}} (x)$. Thus $\exists x \phi_{\underline{W}} (x)$ can be mapped into a finite union of languages $UaV$ and, by inductive hypothesis, we can conclude that $\exists x \phi (x)$ can be defined in a star-free language
 
 # Temporal logics
 
@@ -318,7 +339,7 @@ The algorithm for building $\mathcal{B}_{(P,\phi)}$ starts from adding all $\phi
 Given a behaviour graph $\mathcal{B}_{(P, \phi)}$
 
 1. $(s',A')$ is a *$\tau$-successor* of $(s,A)$ if there is a $\tau$ edge such that $(s,A) \to^\tau (s'A')$
-2. A transition $\tau$ is *enabled* on $s \to \tau$ is enabled on all $(s,A)$
+2. A transition $\tau$ is *enabled* on $s \implies \tau$ is enabled on all $(s,A)$
 
 Given a subgraph $S \subseteq \mathcal{B}_{(P,\phi)}$
 
@@ -522,7 +543,9 @@ Let's consider the following operators:
 - $A[ f_1 \ U \ f_2 ] = \mu z . f_2 \lor (f_1 \land AX z)$
 - $E[ f_1 \ U \ f_2 ] = \mu z . f_2 \lor (f_1 \land EX z)$
 
-For each of the transformers, we should prove the 4 lemmas above.
+For each of the transformers, we should prove the relative identity.
+
+> Example: $EG f_1 = \nu z . f_1 \land EX z$. First we need tro prove that the transformer is monotonic. Then we should show that for every state $s \in S$ that belongs to the limit $i_0$ of the transformer $\tau^{i_0}(true)$, we have that $s \vDash f_1 \land s' \in \tau^{i_0}$, where $s'$ is a successor of $s$ according to $R$. Then we have to show that $\nu z . f_1 \land EX z$ is a fixpoint of the transformer. Finally we have to show that it is, in fact, its gfp.
 
 Now we can exploit OBDDs and fixpoint characterizations of CTL operators to produce a simple algorithm for *symbolic model checking*
 
@@ -538,9 +561,17 @@ Given a kripke structure $\mathcal{M}=(S,R,L)$ and a formula $\alpha$, the proce
 where
 - $CHECK : CTL \to OBDD$
 - $CHECK_{EX} : OBDD \to OBDD$
-$$CHECK_{EX}(f(\overline(v))) = \exists \overline(v)' . [R(\overline{v}, \overline{v}') \land f(\overline{v}')]$$
+$$CHECK_{EX}(f(\overline{v})) = \exists \overline{v}' . [R(\overline{v}, \overline{v}') \land f(\overline{v}')]$$
+
+> Note that this function computes the OBDDs relative to the functions $R$ and $f$, "merges" them through an APPLY and then employs RESTRICT to express the $\exists \overline{v}$ quantification
+
 - $CHECK_{EG} : OBDD \to OBDD$: use the greatest fixpoint algorithm with an OBDD for $true$.
+
+> $EG f_1 = \nu z . f_1 \land EX z$, where we exploit the $CHECK_{EX}$ function on the OBDD for $z$ anche APPLY function in correspondence to the boolean connective to merge the two OBDDs
+
 - $CHECK_{EU} : OBDD \times OBDD \to OBDD$: use the least fixpoint algorithm with an OBDD for $false$
+
+> $E[f_1 \ U \ f_2] = \mu z . f_2 \lor (f_1 \land (EX z))$, where we exploit the $CHECK_{EX}$ function on the OBDD for $z$ and the APPLY function multiple times to merge the various OBDDs with the boolean connectives
 
 # Bounded Model Checking
 
@@ -564,7 +595,7 @@ We want to translate BMC to SAT
 
 1. Firstly we want to unfold the symbolic model $\mathcal{M} = (S, I, T, L)$
 
-$$\llbracket \mathcal{M} \rrbracket_k := I(s_0) \land \bigwedge_{i=0}^{k-1} \land \ T(s_i, s_{i+1})$$
+$$\llbracket \mathcal{M} \rrbracket_k := I(s_0) \land \bigwedge_{i=0}^{k-1} \ T(s_i, s_{i+1})$$
 
 2. Then we check if we have a loop in the model reachable in less than $k$ steps
 
@@ -595,7 +626,7 @@ Procedure: S1S formula can be translated to a Büchi automata which checks words
 
 We must define the arena as a graph
 
-- For each $A$ state $q$ and each bit $b$, we introduce a transition $(q,b)$ labeled by $b$ to a new B-state
+- For each $A$ state $q$ and each bit $b$, we introduce a transition labeled by $b$ to a new B-state called $(q,b)$
 - For each bit $c$, we introduce a transition labeled by $c$ from the B-state $(q,b)$ to the A-state $p$ whenever in the original Muller automaton it is possible to move from $q$ to $p$ via an edge labeled by the pair $(b,c)$
 - For such a state $p$, we define $c$ as the output bit and we denote it by $out(q,b,p)$
 
@@ -642,7 +673,7 @@ Two types of strategies of interest:
 
 **Muller games $\to$ Parity Games**
 
-*Least Appearance Record* (LAR): set of states encountered during a play, ordered according to their last occurrence/appearance. If the current state was already visited in the past, then it is moved from the position $h$ (*hit*) to the first position of the new LAR
+*Latest Appearance Record* (LAR): set of states encountered during a play, ordered according to their last occurrence/appearance. If the current state was already visited in the past, then it is moved from the position $h$ (*hit*) to the first position of the new LAR
 
 Given a LAR $((i_1,...,i_r), h)$, its *hitting set* is $i_1,...,i_h$
 
