@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.15)  23 JUL 2023 18:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.15)  23 JUL 2023 18:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -993,44 +993,51 @@ Package mdframed Info: Not enough space on this page on input line 220.
 Package mdframed Info: Not enough space on this page on input line 357.
  [7]
 Package mdframed Info: Not enough space on this page on input line 357.
- [8] [9] [10]
+ [8] [9]
+Package mdframed Info: Not enough space on this page on input line 472.
+ [10]
+Package mdframed Info: Not enough space on this page on input line 472.
+
 
 LaTeX Warning: Reference `subsec:termination' on page 11 undefined on input lin
-e 494.
+e 492.
 
 [11]
 <images/gui.png, id=266, 1998.46625pt x 1375.1375pt>
 File: images/gui.png Graphic file (type png)
 <use images/gui.png>
-Package pdftex.def Info: images/gui.png  used on input line 510.
+Package pdftex.def Info: images/gui.png  used on input line 508.
 (pdftex.def)             Requested size: 375.80544pt x 258.59303pt.
  [12 <./images/gui.png>]
 <images/socialengineeringattacks.png, id=276, 473.77pt x 541.02126pt>
 File: images/socialengineeringattacks.png Graphic file (type png)
 <use images/socialengineeringattacks.png>
 Package pdftex.def Info: images/socialengineeringattacks.png  used on input lin
-e 543.
+e 541.
 (pdftex.def)             Requested size: 234.8775pt x 268.21498pt.
  [13 <./images/socialengineeringattacks.png>]
 [14]
 
 LaTeX Warning: Reference `sec:#################################################
-#######################' on page 15 undefined on input line 611.
+#######################' on page 15 undefined on input line 609.
 
 [15]
 
 LaTeX Warning: Reference `eq:toy_protocol' on page 16 undefined on input line 6
-50.
+48.
 
-<images/falliblehumans.png, id=309, 1947.275pt x 756.8275pt>
+<images/falliblehumans.png, id=310, 1947.275pt x 756.8275pt>
 File: images/falliblehumans.png Graphic file (type png)
 <use images/falliblehumans.png>
-Package pdftex.def Info: images/falliblehumans.png  used on input line 660.
+Package pdftex.def Info: images/falliblehumans.png  used on input line 658.
 (pdftex.def)             Requested size: 422.77664pt x 164.3084pt.
-[16 <./images/falliblehumans.png>] [17] [18] (./article.bbl [19]) [20]
+[16 <./images/falliblehumans.png>] [17] (./article.bbl [18] [19]) [20]
 (./article.aux)
 
 LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package rerunfilecheck Info: File `article.out' has not changed.
 (rerunfilecheck)             Checksum: 3B62358182D5D260DEA1971243EA89C5;3829.
@@ -1038,7 +1045,7 @@ Package rerunfilecheck Info: File `article.out' has not changed.
 Here is how much of TeX's memory you used:
  24357 strings out of 478268
  455646 string characters out of 5846347
- 746051 words of memory out of 5000000
+ 748051 words of memory out of 5000000
  41980 multiletter control sequences out of 15000+600000
  480471 words of font info for 72 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1066,7 +1073,7 @@ st/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2022/texmf-dist
 /fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2022/texmf-
 dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2022/te
 xmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on article.pdf (20 pages, 1098076 bytes).
+Output written on article.pdf (20 pages, 1098408 bytes).
 PDF statistics:
  481 PDF objects out of 1000 (max. 8388607)
  401 compressed objects within 5 object streams
