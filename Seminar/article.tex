@@ -95,6 +95,7 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 %------------------------------------------------
 
@@ -104,9 +105,9 @@
 
 \epigraph{Security protocols are three-line programs that people still manage to get wrong}{Roger M. Needham}
 
-As computing becomes more obiquitous and distributed, we need an ever-increasing amount of cryptographic protocols to allow different parties to share information in a confidential, authenticated and integral way. New communication protocols are being deployed by the day, but most of them have at least some hidden flaw that, once found, can compromise the security of the communication, with potentially catastrophic effects. To avoid such a disaster, our best defense is to actually verify said protocols in some formal model, that will ensure us that, at least within the assumptions of the model itself, the exchange can not be exploited maliciously. Writing these proof by hand is often a cumbersome, long and error-prone process, thus in the last years computer scientists and mathematicians have instead started relying on automated tools that can carry on the demonstration for them. In this essay, we will take a closer look at one of such tools (the Tamarin prover \cite{tamarin}), by presenting its syntax, strengths, limitations and a practical example of modelization.
+Today's digital infrastructure is increasingly reliant on cryptographic protocols in order to function correctly and efficiently while mitigating the risks of intrusion by malicious parties. Online applications are overtaking traditional physical offices in the name of efficiency; but while mimicking the often decades-old tasks themselves (like purchasing public transportation tickets or voting) in the cyberspace is generally not a big deal on itself, guaranteeing the security of these virtual processes against emerging digital threats demands a lot more research effort. Formal verification tools allow us to construct checkable models of cryptographic protocols and to verify them against well-defined threat models to ensure that such exchanges do not hide any flaws in their design, however, they often rely on strong assumptions regarding the caution and knowledge of the involved users. In this paper, we want to introduce a possible solution for a more complete analysis of protocols which heavily rely on partecipants' input based on the ideas of human knowledge and human error.
 
-The essay is structured as follows: in section \ref{sec:SymbolicModel} we will briefly introduce one of such formal verification models, in section \ref{sec:TamarinOverview} we will give an introduction to the Tamarin prover from a user's perspective, while in the following section we will show how such tool can be used for real-world formal verification by modeling the Needham-Schroeder Symmetric protocol. Finally, in section \ref{sec:conclusions} we will summarize the results of this paper.
+The essay is structured as follows: in section \ref{sec:SymbolicModel} we will briefly introduce one of such formal verification models, in section \ref{sec:TamarinOverview} we will give an introduction to the Tamarin prover (mainly from a user's perspective), while in the following section \ref{sec:SocialEngineering} we will show how we can formalize Social Engineering attacks using said tool's syntax in a very intuitive way. Finally, in section \ref{sec:Conclusions} we will summarize the contents of this paper.
 
 \section{The Dolev Yao model}\label{sec:SymbolicModel}
 
@@ -247,90 +248,28 @@ Normally, unification modulo theories is undecidable \cite{unificationUndecidabi
     A A subterm convergent theory is an equational theory that is convergent and, for each equation $e: L \rightarrow R, e \in E$, $R$ is either ground and in normal form or a proper subterm of $L$.
 \end{definition}
 
-\subsection{Equational theories in Tamarin}
+As of this moment, Tamarin offers 10 different built-in equational theories that users can directly include in their formalization to straightforwardly model cryptographic operations. To provide some intuitive examples, we want to show the equations for pair construction and destruction and symmetric encryption:
 
-By default, Tamarin includes the function symbol $\mono{*}/2$, used in the \textit{AC-equational theory}:
-\begin{align*}
-    x * (y * z) &\simeq (x * y) * z\ \ \textrm{(associativity)}\\
-    x * y &\simeq y * z\ \ \textrm{(commutativity)}
-\end{align*}
+\begin{figure*}
+    \begin{align}
+        \mono{fst}(\mono{pair}(x,y)) &= x \label{eq:fst}\\
+        \mono{snd}(\mono{pair}(x,y)) &= y \label{eq:snd}\\
+        \mono{sdec}(\mono{senc}(m, k), k) &= m \label{eq:sym}
+    \end{align}
+    \caption{Equations belonging to the default and $\mono{symmetric-encryption}$ equational theories}
+\end{figure*}
 
-This theory clearly models some properties of multiplication. Similarly, the tool provides function symbols ($\mono{pair}/2$, $\mono{fst}/1$ and $\mono{snd}/1$) and equations to work with pairs: 
-\begin{align*}
-    \mono{fst}(\mono{pair}(x,y)) &\simeq x\\
-    \mono{snd}(\mono{pair}(x,y)) &\simeq y
-\end{align*}
+Note that equations \ref{eq:fst} and \ref{eq:snd} rely on the signature $\Sigma_\textrm{default} = \{\mono{pair}/2, \mono{fst}/1, \mono{snd}/2\}$, while equation \ref{eq:sym} (which closely models the identity introduced at \ref{eq:SymmetricEncryptionIdentity}) relies on $\Sigma_\textrm{sym-enc} = \{\mono{senc}/2, \mono{sdec}/2\}$. 
 
-Other function symbols are shipped within the tool, but must be loaded into a theory through the $\,ono{built-ins}$ directive:
-
-\paragraph{hashing}
-The $\mono{hashing}$ theory defines the symbol $\mono{h}/1$ and no equations. This clearly models the one-wayness of an ideal hash function, which cannot be reversed (the only way to determine whether the pre-image of $\mono{h}(x)$ is $x$ is to find $x$ itself).
-
-\paragraph{symmetric encryption}
-The $\mono{symmetric-encryption}$ theory models equation \ref{eq:SymmetricEncryptionIdentity} in a very natural way: after providing symbols $\mono{senc}/2$ and $\mono{sdec}/2$, it defines the equation
-\begin{equation*}
-    \mono{sdec}(\mono{senc}(m,k),k) = m
-\end{equation*}
-which enforces the fact that the only way to access an encrypted term is to know the decryption key (perfect cryptography assumptions).
-
-\paragraph{asymmetric encryption}
-Similarly to last paragraph, the $\mono{asymmetric-encryption}$ theory formalizes equation \ref{eq:AsymmetricEncryptionIdentity} through symbols $\mono{pk}/1$, $\mono{aenc}/2$ and $\mono{adec}/2$ and the equation
-\begin{equation*}
-    \mono{adec}(\mono{aenc}(m, \mono{pk}(sk)), sk) = m
-\end{equation*}
-By not providing other equations, this ensures that an attacker is not able neither to decrypt an encrypted message without the private secret, nor to deduce a private key from it corrispondent public counterpart.
-
-\paragraph{signing}
-The $\mono{signing}$ theory allows to model digital signing schemes. It introduces symbols $\mono{sign}/2$, $\mono{verify}/3$, $\mono{pk}/1$, $\mono{true}/0$ and the equation
-\begin{equation*}
-    \mono{verify}(\mono{sign}(m,sk), m, \mono{pk}(sk)) = \mono{true}
-\end{equation*}
-Yet again, not providing other equations enforces the fact that the attacker is not able to forge valid signatures without first finding a private key.
-
-\paragraph{diffie hellman}
-Perhaps the most complex built-in theory is the $\mono{diffie-hellman}$ one: it defines function symbols $\mono{inv}/1$, $\mono{1}/0$ $\mono{\textasciicircum}/2$ and $\mono{*}/2$ and the following equations:
-\begin{align*}
-    (x^y)^z  &\simeq x^{(y*z)}\\
-    x^1      &\simeq x\\
-    x*y      &\simeq y*x\\
-    (x*y)*z  &\simeq x*(y*z)\\
-    x*1      &\simeq x\\
-    x*\mono{inv}(x) &\simeq 1
-\end{align*}
-Note that this theory allows to effectively model Diffie Hellman exchanges (both classical and with elliptic curves) while providing the remaining multiplication properties not captured by the AC theory (namely the inverse and the identity).
-
-\paragraph{Other built-in theories}
-There are other built-in theories that can be included within a Tamarin model:
-
-\begin{enumerate}
-    \item $\mono{revealing-signing}$
-    \item $\mono{bilinear-pairing}$
-    \item $\mono{xor}$
-    \item $\mono{multiset}$
-    \item $\mono{reliable-channel}$
-\end{enumerate}
-
-for the sake of brevity we will not introduce them, but we encourage any interested reader into looking at their definitions within the manual \cite{tamarinManual}.
-
-\paragraph{User-defined theories}
-Furthermore, a user can define additional custom theories to model any cryptographic primitive or mechanism required for a security protocol.
-
-For example, one may want to model the homomorphic properties of a symmetric encryption scheme (for example vanilla RSA's invariance under multiplication): to do so, it is sufficient to add the following equation to a formalization after the $\mono{equations}$ keyword (of course assuming the relative built-in theories have already been included):
-\begin{equation*}
-    \mono{aenc}(m_1, k) * \mono{aenc}(m_2, k) \simeq \mono{aenc}(m_1*m_2, k)
-\end{equation*}
-
-Similarly, when dealing with elliptic curve cryptography, it is possible to use the same keypair both for the Ed25519 signing schema and the X25519 exchange procedure \cite{signdh}. Such behaviour can be modeled by introducing the following equation \footnote{Note that this is not entirely true: name clashing on symbols may force the user to rename some functions for this to work. In any case, it is possible to simply avoid including the built-ins and explicitly defining the relative equational theories following the definitions introduced in this section without using reserved names.} (again, considering the $\mono{diffie-hellman}$ and $\mono{asymmetric-encryption}$ built-ins as already included):
-\begin{equation*}
-    g^x \simeq \mono{pk}(x)
-\end{equation*}
-where $g$ is a public constant symbolizing the generator of the curve.
+Overall, the theories provided by the tool cover most of the cryptographic primitives adopted in classical protocol specification, but, if a user required a functionality that was not provided out-of-the-box, it would be easy for him to include additional function symbols and the relative equations through the $\mono{functions}$ and $\mono{equations}$ keywords.
 
 Finally, it has to be noted that a custom symbol can be defined with the $\mono{[private]}$ keyword to prevent the attacker from creating new terms with it. This could be useful if, for example, we wanted to model a protocol in which there is a cryptographic primitive (like a secret hash function) that, for some reason, is accessible only by the intended parties of an exchange. It is well know that "security by obscurity" is not a principle to follow at all, but this attribute makes the formalization of similar contexts straightforward. All the other functions are considered public and thus can be employed by the user and the attacker alike.
 
 \subsection{Formalizing protocols as sets of rewriting rules}
 
-In Tamarin, the execution of a protocol is modeled by the evolution of a multiset of facts. In knowledge representation, facts are "true" predicates that have a fixed arity and are composed of terms; Tamarin follows this simple definition and requires the user to define them with a starting capital letter. In particular, there are two different versions of this construct that can be exploited during protocol specification:
+We have seen how cryptographic operations can be formalized in Tamarin's syntax. Communication protocols involve far more complex dynamics than can not be expressed by atomic term manipulations, thus we introduce the idea of \textit{facts}.
+
+In Tamarin, the execution of a protocol is modeled by the evolution of a multiset\footnote{Within this paper we define multisets through the $\{\{ ... \}\}$ notation: an empty multiset is represented as $\{\{\}\}$, while a multiset containing elements $x,y,z$ is represented as $\{\{x,y,z\}\}$} of facts (which represent the state of the system at any given moment). In knowledge representation, facts are "true" predicates that have a fixed arity and are composed of terms belonging to the supporting term-algebra; Tamarin follows this simple definition and requires the user to define them with a starting capital letter. In particular, there are two different versions of this construct that can be exploited during protocol modeling:
 
 \begin{itemize}
     \item \textit{linear facts} can be consumed only once and are useful to model state transitions and ephemeral messages;
@@ -341,7 +280,7 @@ Tamarin allows protocol (and adversary) modeling through multiset rewriting rule
 
 \begin{definition}[Labelled rewriting rule]
 
-Given a multiset $\Gamma_t = \{ F_0, ..., F_n \}$ and a sequence of multisets $trace_t = \langle a_0, ..., a_{t-1} \rangle$ at a time $t$, we can define a rewrite rule as a triple of multisets $RR = \langle L, A, R \rangle$ (written as $RR= L \xrightarrow{ A } R$) such that:
+Given a multiset of facts $\Gamma_t = \{\{ F_0, ..., F_n \}\}$ and a sequence of multisets $trace_t = \langle a_0, ..., a_{t-1} \rangle$ at a time $t$, we can define a rewrite rule as a triple of multisets $RR = \langle L, A, R \rangle$ (written as $RR= L \xrightarrow{ A } R$) such that:
 
 \begin{itemize}
     \item we can apply $RR$ to $\Gamma_t$ if there is at least one ground instance (i.e. an instance with no variables) $rr = l \xrightarrow{ a } r$ of $RR$ so that $l \subseteq^{\#} \Gamma_t$
@@ -364,12 +303,12 @@ In particular, given a set of rewriting rules $P$, Tamarin will analyze the set 
     G Given a set of labelled rewriting rules $P = \{(N_1,RR_1),$ $...,(N_m,RR_m)\}$, we define the set of possible traces generated by $P$ as
     \begin{align*}
         traces(P) = \{ &\langle A_1,...,A_n \rangle | \exists S_1,...,S_n . \varnothing ^{\#} \xrightarrow[]{A_1} S_1 \xrightarrow[]{A_2} ... \xrightarrow[]{A_n} S_n\\
-        & \textrm{and no ground istance of } \mono{Fresh}() \textrm{is used twice }\}
+        & \textrm{and no ground istance of } \mono{Fresh}() \textrm{ is used twice }\}
     \end{align*}
-    where $A_i$ is $RR_i$'s action facts multiset.
+    where $A_i$ is $RR_i$'s action facts multiset. Note that the fact $\mono{Fresh}$ will be soon introduced formally, but for now it is enough to know that it is used to generate new terms.
 \end{definition}
 
-Furthermore, it is important to note that security properties will be specified on specific types of traces, namely \textit{observable traces}.
+Furthermore, it is important to note that security properties will be specified on specific types of traces, namely \textit{observable traces}. 
 
 \begin{definition}[Observable trace]
     G Given a trace $tr$, we can compute its relative observable trace $tr_{obs}$ by removing all the empty multisets from it:
@@ -401,11 +340,11 @@ and the observable trace
     tr_{obs} = \langle \{\{\mono{Init}(0)\}\}, \{\{\mono{Init}(0)\}\}, \{\{\mono{Concl}(0)\}\}\rangle
 \end{equation*}
 
-\subsubsection{Dolev Yao rules}
+\subsubsection{Dolev Yao rules}\label{sec:DolevYaoRules}
 Although the above described multiset rule rewriting system can be used for general model checking, Tamarin provides a set of built-in rules to model connections within Dolev-Yao's adversary controlled network:
 
 \begin{itemize}
-    \item $[ \ ] \to [ \mono{Fr}(~msg) ]$ allows for the generation of new fresh values.
+    \item $[ \ ] \xrightarrow{\mono{Fresh}(~msg)} [ \mono{Fr}(~msg) ]$ allows for the generation of new fresh values.
     \item $[ \mono{Fr}(~msg) ] \to [ \mono{K}(~msg) ]$ allows for the generation of new fresh values by the attacker (expressed by the $\mono{K}$ fact)
     \item $[ \mono{Out}_{\textrm{ins}}(msg) ] \to [ \mono{K}(msg) ]$ allows the attacker to eavesdrop all messages travelling through the network. 
     \item $[ \mono{K}(msg) ] \xrightarrow{\mono{K}(msg)} [ \mono{In}_{\textrm{ins}}(msg) ]$ allows user to retrieve messages from the attacker-controlled network.
@@ -435,7 +374,7 @@ Similarly, to model an \textit{authentic channel} (a connection where integrity,
     [\mono{Out}_{\textrm{auth}}(msg)] \xrightarrow{\mono{K}(msg)} [\mono{In}_{\textrm{auth}}(msg), \mono{K}(msg)]
 \end{equation*}
 
-By not including a rule that allows the attacker to produce $\mono{AuthOut}$ or $\mono{AuthIn}$ facts, we ensure that such channel cannot be polluted with forged messages. Again, we could trivially differentiate between channels or build both confidential and authentic (secure) connections with analogous rules.
+By not including a rule that allows the attacker to produce $\mono{Out}_\textrm{auth}$ or $\mono{In}_\textrm{auth}$ facts, we ensure that such channel cannot be polluted with forged messages. By introducing analogous rules, we could clearly model channels that are both authentic and confidential (\textit{secure channels}), or differentiate between channels also in other types of communication mediums.
 
 \subsection{Trace properties}\label{subsec:TraceProperties}
 
@@ -450,15 +389,23 @@ As previously anticipated, in Tamarin security properties are expressed as guard
     \item action facts at time points $F @ i$ (for an action fact $F$ at timepoint $i$).
 \end{itemize}
 
-Keeping in consideration that also properties can define sets of traces similarly to protocol rules, we can define correctness as follows:
+Some security properties are straightforward to formalize as formulas with this syntax and semantics: for example, assuming in our theory there is at least a rule that has an action fact $\mono{Secret}(m)$ that indicates that a party supposes that $m$ is confidential, secrecy can be expressed as:
+
+\begin{equation*}
+    \forall tr \in traces(P), m, t_1: Secret(m) @ t_1 \Rightarrow \neg \exists t_2 : K(m) @ t_2
+\end{equation*}
+
+Other properties (for example, peer authentication or protection from replay attacks) as not as easy to express and rely pretty heavily on the underlying rule rewriting system, thus we invite the reader to take a look at the examples of successful formalizations listed on Tamarin's website \cite{tamarin}.
+
+Keeping in consideration that also properties can clearly define sets of traces similarly to protocol rules, we can define correctness as follows:
 
 \begin{definition}[Correctness]
     G Given a set of protocol rules $P$ and a property to prove $\phi$, $P$ is correct in regards to $\phi$ if and only if the set of traces generated by $P$ is a subset of the one generated by $\phi$:
     \begin{equation*}
-        P \vDash \phi \iff traces(\phi) \subseteq traces(P)
+        P \vDash \phi \iff traces(P) \subseteq traces(\phi)
     \end{equation*}
 
-    On the contrary, if $P \vDash \phi$, all traces belonging to $traces(P) / traces(\phi)$ represent valid attacks.
+    On the contrary, if $P \not \vDash \phi$, all traces belonging to $traces(P) \textbackslash traces(\phi)$ represent valid attacks.
 \end{definition}
 
 Note that property proving is done by Tamarin through \textit{constraint systems} resolving. In turn, these systems are simplified by executing a backwards search within the relative protocol's \textit{dependencies graph} (a graph that, for each fact used by a Tamarin \textit{theory}, describes the list of possible rules usable to obtain it). The theoretical foundations behind property proving are beyond the scope of this report, but are explained in detail in \cite{schmidtThesis} \cite{meierThesis}. As end users, we can be satisfied by knowing that Tamarin's verification algorithm, although does not guarantee termination, is both \textit{sound} and \textit{complete} \cite{schmidtThesis} \cite{meierThesis} \cite{xorCompleteness}.
@@ -479,7 +426,9 @@ This is the weakest (and thus most suitable for security verification) form of o
     Thus, the two protocol have the same structure during execution.
 \end{definition}
 
-The previously introduced $\mono{diff}(\textrm{left}, \textrm{right})$ operator allows to define a protocol rule that can be instantiated either with the $\textrm{left}$ or $\textrm{right}$ value. For each one of them, Tamarin constructs the relative dependencies graph and checks if they are equivalent, which is a sufficient criterion for observational diff-equivalence. Please note that a formal definition of \textit{dependencies graph equivalence}, along with the subsequent demonstration of sufficiency are available in the introductory paper for the observational equivalences in Tamarin written by D. Basin, J. Dreier and R. Sasse \cite{tamarinObsEquivalences}.
+The previously introduced $\mono{diff}(\textrm{left}, \textrm{right})$ operator allows to define a protocol rule that can be instantiated either with the $\textrm{left}$ or $\textrm{right}$ value. For each one of them, Tamarin constructs the relative dependencies graph (an oriented graph that describes the causal relations between the various applications of ground rules in a protocol execution) and checks if they are equivalent, which is a sufficient criterion for observational diff-equivalence. Please note that a formal definition of \textit{dependencies graph equivalence}, along with the subsequent demonstration of sufficiency are available in the introductory paper for the observational equivalences in Tamarin written by D. Basin, J. Dreier and R. Sasse \cite{tamarinObsEquivalences}.
+
+Clearly diving more deeply within this extension's background theory diverges from this paper's scope. On the other hand, looking at the matter with a more practical approach, we still wanted to point out that this additional functionality is crucial for formalizing indistinguishability properties, which are at the root of many privacy aspects. 
 
 \subsection{Aiding termination}
 
@@ -488,8 +437,6 @@ Since unbounded protocol verification in the symbolic model is an inherently und
 \subsubsection{Source lemmas}
 
 As explained before, Tamarin elaborates the dependencies graph related to a theory before beginning constraint solving. Since the prover uses an untyped system, in certain cases it is not able to deduce the source of one or more facts, causing partial deconstructions. As explained by V. Cortier \cite{autosources}, for example, this situation occurs whenever the same message has to travel across the network multiple times. To mitigate this issue, Tamarin allows to define a lemma with the additional tag $\mono{[sources]}$, which is automatically proved during the precomputation phase and allows to declare the origin of one or more messages.
-
-An example of this type of lemma, along with its explanation, will be provided in section \ref{subsec:termination}
 
 Note that V. Cortier, S. Dealune and J. Dreier proposed an algorithm for automatic source lemma generation \cite{autosources} that has already been integrated in Tamarin (run the program with the additional $\mono{--auto-sources}$ tag to execute the extension), but sometimes it leads to non-termination during the precomputation phase.
 
@@ -525,10 +472,7 @@ Finally, the last functionality we introduce are \textit{re-use lemmas}: defined
 
 %------------------------------------------------
 
-
-
-
-\section{The Rise of social engineering attacks}
+\section{Formalizing Social Engineering attacks}\label{sec:SocialEngineering}
 
 When verifying cryptographic protocols, we tend to abstract the parties involved in the exchanges to perfect machines which follow flawlessly the rules of the scheme under analysis. In practice, such operations are performed by humans, which are far for perfect and may introduce unexpected behaviours into the dynamics of a protocol (for example by falling for a social engineering attack), leading to possible catastrophical outcomes. In a recent report by Gitnux \cite{Gitnux_2023}, the authors state that
 
@@ -606,7 +550,7 @@ From a global perspective, a cryptographic protocol is typically defined in some
     \item A \textit{secure channel}: $A \sec B$
 \end{itemize}
 
-Do not forget that, although Tamarin only features insecure channels (the ones with the weakest assumptions) by default, as we showed in \ref{sec:####################################} it is really easy to define rules to include also the other types of channels.
+Do not forget that, although Tamarin only features insecure channels (the ones with the weakest assumptions) by default, but, as we showed in \ref{sec:DolevYaoRules} it is really easy to define rules to include also other types of channels.
 
 If, on the other hand, we want to consider the actions perfomed by any agent specifically, we can focus on \textit{role scripts}. A role script for an agent $H$ in a given protocol is the sequence of operations that $H$ has to execute in order to successfully complete the run of the exchange on his side, thus we can see them as "projections" onto parties of entire protocol specifications. More formally, a role script is a sequence of \textit{events} $e \in \mathcal{T}_{\Sigma \cup \textrm{RoleActions}}(X)$, where $\textrm{RoleActions} = \{\mono{Send}, \mono{Receive}, \mono{Start}, \mono{Fresh} \}$, where the top-level function of $e$ belongs to $\textrm{RoleActions}$. Such functions have a well defined meaning:
 
@@ -620,12 +564,13 @@ If, on the other hand, we want to consider the actions perfomed by any agent spe
 A brilliant example of the projection of a protocol specification onto a role script is provided in the article:
 
 \begin{figure}
-\begin{alignat*}{3}\label{eq:toy_protocol}
+\begin{alignat*}{3}
     &0.\  S &&: \textrm{knows}(R)\\
     &0.\  R &&: \textrm{knows}(S, m_2)\\
     &1.\  S \ins R &&: \textrm{fresh}(m_1).m_1\\
     &2.\  R \sec S &&: m_2
 \end{alignat*}
+\label{eq:toy_protocol}
 \caption{Toy protocol in Alice and Bob notation}
 \end{figure}
 
@@ -686,7 +631,7 @@ Let us take a closer look at these rules:
     \item Rule \ref{eq:retrieving_from_the_attacker} allows a human to update his existing knowledge based on new information received from the network. For example, an unexperienced user may receive a phishing mail explaining that he must re-enter his credentials into a new website because of security reasons.
 \end{itemize}
 
-Note that all of the rules have action facts equivalent to the function symbols belonging to $\textrm{RoleActions}$. This will allow us to introduce rules that constrain the possible behaviours (thus effectively defining skilled humans) by including additional restrictions in the theory \footnote{Note that, technically, we are defining predicates. In practice, we implement them in Tamarin as restrictions, thus we will use these two terms interchangeably within the rest of this section}. Technically, it would be possible to include any constraint to limit the possible action executed by a human agent, but the authors propose 4 very generic formulas that cover many social engineering threats:
+Note that all of the rules have action facts equivalent to the function symbols belonging to $\textrm{RoleActions}$. This will allow us to introduce rules that constrain the possible behaviours (thus effectively defining skilled humans) by including additional restrictions in the theory\footnote{Note that here, technically, we are defining predicates. In practice, we implement them in Tamarin as restrictions, thus we will use these two terms interchangeably within the rest of this section}. Technically, it would be possible to include any constraint to limit the possible action executed by a human agent, but the authors propose 4 very generic formulas that cover many social engineering threats:
 
 \paragraph{$\mono{NoTell}$ for avoiding leakage of private information}
 
@@ -737,6 +682,10 @@ While the predicates proposed by the article cover a lot of real world scenarios
 \paragraph{Proving properties}
 
 The most convenient aspect of this approach is the fact that, by including the constraints on the behaviour of the untrained human through predicates, we can easily keep our usual formulas for the properties to check while quickly sweeping in or out the restrictions in order to verify different scenarios. Furthermore, by including the reference to the a particular human $H$ within our predicates we are able to impose different degrees of freedom to various agents for a more general (and capillary) verification strategy. In particular, our approach distinguishes a particular human $H$ for whom security properties are analyzed, while allowing an arbitrary number of untrained (or less skilled) humans in the network to verify whether errors of external parties may affect $H$'s security guarantees.
+
+\section{Conclusions}\label{sec:Conclusions}
+
+In this article we firstly introduced the general problem of automated verification of cryptographic protocols in the Dolev Yao model, then we gave a general overview of the Tamarin Prover, mainly from a user's perspective. Although such outline covered most of the features provided by the tool, for a more comprehensive look at the subject we suggest consulting \cite{tamarinManual}. Finally, we showed how to include various Social Engineering attacks within the considered threat model by formalizing human knowledge and agent errors through multisets rewriting rules and restrictions. This allows us to verify protocols that rely on multiple interactions with the users in a more realistic and complete way. Possible future works would include the development of additional predicates to model further assumptions and the ideation of a concrete system to implement the skilled humans approach.
 
 \bibliographystyle{alpha}
 \bibliography{references}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.15)  23 JUL 2023 18:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.15)  23 JUL 2023 23:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -972,81 +972,74 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 LaTeX Warning: No \author given.
 
+(./article.toc)
+\tf@toc=\write5
+\openout5 = `article.toc'.
 
-LaTeX Warning: Reference `sec:conclusions' on page 1 undefined on input line 10
-9.
+ [1
 
-[1
-
-{/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-<images/undecidability.png, id=122, 4040.09375pt x 3116.64375pt>
+{/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+<images/undecidability.png, id=151, 4040.09375pt x 3116.64375pt>
 File: images/undecidability.png Graphic file (type png)
 <use images/undecidability.png>
-Package pdftex.def Info: images/undecidability.png  used on input line 152.
+Package pdftex.def Info: images/undecidability.png  used on input line 153.
 (pdftex.def)             Requested size: 375.80544pt x 289.90195pt.
-
-[2] [3 <./images/undecidability.png>]
-Package mdframed Info: Not enough space on this page on input line 220.
- [4]
-Package mdframed Info: Not enough space on this page on input line 220.
- [5] [6]
-Package mdframed Info: Not enough space on this page on input line 357.
+ [3 <./images/undecidability.png>] [4] [5]
+Package mdframed Info: Not enough space on this page on input line 245.
+ [6]
+Package mdframed Info: Not enough space on this page on input line 318.
  [7]
-Package mdframed Info: Not enough space on this page on input line 357.
- [8] [9]
-Package mdframed Info: Not enough space on this page on input line 472.
+Package mdframed Info: Not enough space on this page on input line 318.
+ [8]
+
+LaTeX Warning: Command \textbackslash invalid in math mode on input line 408.
+
+LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 4
+08.
+(/usr/local/texlive/2022/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 408.
+
+
+LaTeX Warning: Command \textbackslash invalid in math mode on input line 408.
+
+Package mdframed Info: Not enough space on this page on input line 409.
+[9]
+Package mdframed Info: Not enough space on this page on input line 409.
  [10]
-Package mdframed Info: Not enough space on this page on input line 472.
-
-
-LaTeX Warning: Reference `subsec:termination' on page 11 undefined on input lin
-e 492.
-
-[11]
-<images/gui.png, id=266, 1998.46625pt x 1375.1375pt>
+<images/gui.png, id=278, 1998.46625pt x 1375.1375pt>
 File: images/gui.png Graphic file (type png)
 <use images/gui.png>
-Package pdftex.def Info: images/gui.png  used on input line 508.
+Package pdftex.def Info: images/gui.png  used on input line 455.
 (pdftex.def)             Requested size: 375.80544pt x 258.59303pt.
- [12 <./images/gui.png>]
-<images/socialengineeringattacks.png, id=276, 473.77pt x 541.02126pt>
+ [11]
+<images/socialengineeringattacks.png, id=288, 473.77pt x 541.02126pt>
 File: images/socialengineeringattacks.png Graphic file (type png)
 <use images/socialengineeringattacks.png>
 Package pdftex.def Info: images/socialengineeringattacks.png  used on input lin
-e 541.
+e 485.
 (pdftex.def)             Requested size: 234.8775pt x 268.21498pt.
- [13 <./images/socialengineeringattacks.png>]
-[14]
-
-LaTeX Warning: Reference `sec:#################################################
-#######################' on page 15 undefined on input line 609.
-
-[15]
-
-LaTeX Warning: Reference `eq:toy_protocol' on page 16 undefined on input line 6
-48.
-
-<images/falliblehumans.png, id=310, 1947.275pt x 756.8275pt>
+ [12 <./images/gui.png>] [13 <./images/socialengineeringattacks.png>] [14]
+<images/falliblehumans.png, id=323, 1947.275pt x 756.8275pt>
 File: images/falliblehumans.png Graphic file (type png)
 <use images/falliblehumans.png>
-Package pdftex.def Info: images/falliblehumans.png  used on input line 658.
+Package pdftex.def Info: images/falliblehumans.png  used on input line 603.
 (pdftex.def)             Requested size: 422.77664pt x 164.3084pt.
-[16 <./images/falliblehumans.png>] [17] (./article.bbl [18] [19]) [20]
-(./article.aux)
-
-LaTeX Warning: There were undefined references.
-
+ [15] [16 <./images/falliblehumans.png>] [17] (./article.bbl [18]
+[19]) [20] (./article.aux)
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package rerunfilecheck Info: File `article.out' has not changed.
-(rerunfilecheck)             Checksum: 3B62358182D5D260DEA1971243EA89C5;3829.
+(rerunfilecheck)             Checksum: EB3B4D88F364D04D83355B76AE225710;3705.
  ) 
 Here is how much of TeX's memory you used:
- 24357 strings out of 478268
- 455646 string characters out of 5846347
- 748051 words of memory out of 5000000
- 41980 multiletter control sequences out of 15000+600000
+ 24376 strings out of 478268
+ 455958 string characters out of 5846347
+ 747360 words of memory out of 5000000
+ 42000 multiletter control sequences out of 15000+600000
  480471 words of font info for 72 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  109i,19n,118p,1140b,985s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1057,26 +1050,28 @@ Here is how much of TeX's memory you used:
 usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
 sr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr
 /local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/l
-ocal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loc
-al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local
-/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/t
-exlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texl
-ive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive
-/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/20
-22/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2022/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2022/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2022/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2022/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2022/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2022/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2022/texmf-dist
-/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2022/texmf-
-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2022/te
-xmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on article.pdf (20 pages, 1098408 bytes).
+ocal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loc
+al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
+/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/t
+exlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/tex
+live/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texliv
+e/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2
+022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2022
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2022/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2022/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2022/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2022/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2022/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2022/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2022/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2022/texmf-dist/fon
+ts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2022/texmf-dist
+/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2022/texmf-
+dist/fonts/type1/public/cm-super/sfrm1000.pfb>
+Output written on article.pdf (20 pages, 1115123 bytes).
 PDF statistics:
- 481 PDF objects out of 1000 (max. 8388607)
- 401 compressed objects within 5 object streams
- 123 named destinations out of 1000 (max. 500000)
+ 509 PDF objects out of 1000 (max. 8388607)
+ 425 compressed objects within 5 object streams
+ 116 named destinations out of 1000 (max. 500000)
  201 words of extra memory for PDF output out of 10000 (max. 10000000)
 
