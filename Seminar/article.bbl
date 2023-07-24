@@ -1,12 +1,6 @@
 \newcommand{\etalchar}[1]{$^{#1}$}
 \begin{thebibliography}{SMCB12}
 
-\bibitem[AC04]{satmc}
-A.~Armando and L.~Compagna.
-\newblock Satmc: A sat-based model checker for security protocols.
-\newblock In {\em Logics in Artificial Intelligence}, volume 3229, pages
-  730--733. Springer Berlin Heidelberg, Sep 2004.
-
 \bibitem[BBB{\etalchar{+}}19]{SoK}
 M.~Barbosa, G.~Barthe, K.~Bhargavan, B.~Blanchet, C.~Cremers, K.~Liao, and
   B.~Parno.
@@ -25,12 +19,6 @@ B.~Blanchet.
   calculus and proverif.
 \newblock {\em Foundations and Trends in Privacy and Security}, 1:1--135, Oct
   2016.
-
-\bibitem[BMV05]{ofmc}
-D.~Basin, S.~Mödersheim, and L.~Vigano.
-\newblock Ofmc: A symbolic model checker for security protocols.
-\newblock {\em International Journal of Information Security}, 4:181--208, Jan
-  2005.
 
 \bibitem[BRS15]{Basin_2015}
 David Basin, Sara Radomirovic, and Michael Schlapfer.
@@ -63,10 +51,13 @@ V.~Cortier, S.~Delaune, and J.~Dreier.
   Automatic Proofs of Security Protocols}, pages 3--22.
 \newblock Springer International Publishing, Sep 2020.
 
-\bibitem[CR12]{subtermconvergent}
-Y.~Chevalier and M.~Rusinowitch.
-\newblock Decidability of equivalence of symbolic derivations.
-\newblock {\em Journal of Automated Reasoning}, 48(2):263--292, 2012.
+\bibitem[DDKS17]{Dreier_2017}
+Jannik Dreier, Charles Dumenil, Steve Kremer, and Ralf Sasse.
+\newblock Beyond subterm-convergent equational theories in automated
+  verification of stateful protocols.
+\newblock In Matteo Maffei and Mark Ryan, editors, {\em Principles of Security
+  and Trust}, pages 117--140, Berlin, Heidelberg, 2017. Springer Berlin
+  Heidelberg.
 
 \bibitem[DHRS18]{xorCompleteness}
 J.~Dreier, L.~Hirschi, S.~Radomirovic, and R.~Sasse.
@@ -152,35 +143,10 @@ M.~Schmidt-Schauss.
 \newblock Unification in permutative equational theories is undecidable.
 \newblock {\em Journal of Symbolic Computation}, 8(4):415--421, 1989.
 
-\bibitem[Tea13]{tamarin}
-The~Tamarin Team.
-\newblock Tamarin prover.
-\newblock \url{https://tamarin-prover.github.io}, 2013.
-\newblock Accessed: 2023-05-05.
-
 \bibitem[Tea22]{tamarinManual}
 The~Tamarin Team.
 \newblock {\em Tamarin-Prover Manual: Security Protocol Analysis in the
   Symbolic Model}, 2022.
-
-\bibitem[Tho21]{signdh}
-E.~Thormarker.
-\newblock On using the same key pair for ed25519 and an x25519 based kem.
-\newblock Cryptology ePrint Archive, Paper 2021/509, 2021.
-
-\bibitem[Tur06]{clAtse}
-M.~Turuani.
-\newblock The cl-atse protocol analyser.
-\newblock In {\em Term Rewriting and Applications, Lecture Notes in Computer
-  Science}, volume 4098, pages 277--286, Aug 2006.
-
-\bibitem[Vit21]{PresentazioneVitacolonna}
-N.~Vitacolonna.
-\newblock Symbolic verification of security protocols with tamarin.
-\newblock
-  \url{http://users.dimi.uniud.it/~angelo.montanari/SymbolicVerificationWithTamarin.pdf},
-  May 2021.
-\newblock Accessed: 2022-07-30.
 
 \bibitem[Yao82]{yao}
 A.~C. Yao.

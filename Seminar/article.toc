@@ -1,8 +1,8 @@
 \contentsline {section}{Introduction}{1}{section*.2}%
 \contentsline {section}{\numberline {1}The Dolev Yao model}{2}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Computational limits of the symbolic model}{3}{subsection.1.1}%
-\contentsline {section}{\numberline {2}Tamarin Prover Overview}{4}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Term algebra}{4}{subsection.2.1}%
+\contentsline {section}{\numberline {2}Tamarin Prover Overview}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Term algebra}{3}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Formalizing protocols as sets of rewriting rules}{6}{subsection.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.1}Dolev Yao rules}{8}{subsubsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.3}Trace properties}{9}{subsection.2.3}%

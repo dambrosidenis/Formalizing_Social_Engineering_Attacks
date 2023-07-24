@@ -76,17 +76,30 @@
 
 \usepackage{hyperref} % Required for hyperlinks
 
+%\hypersetup{
+%	hidelinks,
+%	colorlinks,
+%	breaklinks=true,
+%	urlcolor=color2,
+%	citecolor=color1,
+%	linkcolor=color1,
+%	bookmarksopen=false,
+%	pdftitle={Title},
+%	pdfauthor={Author},
+%}
+
 \hypersetup{
 	hidelinks,
 	colorlinks,
 	breaklinks=true,
-	urlcolor=color2,
-	citecolor=color1,
-	linkcolor=color1,
+	urlcolor=black,
+	citecolor=black,
+	linkcolor=black,
 	bookmarksopen=false,
 	pdftitle={Title},
 	pdfauthor={Author},
 }
+
 %---------
 
 
@@ -135,7 +148,7 @@ Given a message $M$ and its image $\textrm{senc}_k\ M$ (or, $\textrm{aenc}_{pub}
     \item infer any information about $M$ from $\textrm{senc}_k\ M$ \\(or $\textrm{aenc}_{pub}\ M$).
 \end{itemize}
 
-This set of hypotheses represents both the strength and weakness of this paradigm: from a modeling point of view, the abstractions introduced effectlively strip down protocols of their low-level implementation complexity, keeping only the required cryptographic primitives, and thus allowing for far easier formalization and verification processes. Long and complex message exchanges between multiple parties are manageable within this model and, as we will soon show, various provers have been proposed with this purpose during recent years. On the other hand, by simplyfing cryptography down to only algebraic terms, this model does not take into consideration neither possible bad implementation choices nor real-world attacks regarding the cryptographic primitives actually used. The computational model, by being less abstract, clearly covers a wider spectrum of risk scenarios, but with an non-negligible added complexity and still without being considered a completely inclusive paradigm (we can trivially think about side channel attacks, which are not being included in any threat model by definition).
+This set of hypotheses represents both the strength and weakness of this paradigm: from a modeling point of view, the abstractions introduced effectlively strip down protocols of their low-level implementation complexity, keeping only the required cryptographic primitives, and thus allowing for far easier formalization and verification processes. Long and complex message exchanges between multiple parties are generally more manageable within this model and, as we will soon show, various provers have been proposed with this purpose during recent years. On the other hand, by simplyfing cryptography down to only algebraic terms, this model does not take into consideration neither possible bad implementation choices nor real-world attacks regarding the cryptographic primitives actually used. The computational model, by being less abstract, clearly covers a wider spectrum of risk scenarios, but with an non-negligible added complexity and still without being considered a completely inclusive paradigm (we can trivially think about side channel attacks, which are not being included in any threat model by definition).
 
 Coming back to the Dolev-Yao model, a protocol is formalized as a series of algebraic terms (messages) exchanged by abstract machines (clients) through an attacker-controlled network. We assume that any connection can be eavesdropped by a malevolent agent that is also able to intercept, modify, forge and drop messages on the fly (but always following the perfect cryptography constraints described). After formalizing a protocol, its security goals can be expressed as:
 
@@ -146,23 +159,11 @@ Coming back to the Dolev-Yao model, a protocol is formalized as a series of alge
 
 \subsection{Computational limits of the symbolic model}
 
-In order to streamline the proof of security properties belonging to a certain protocol in the symbolic model, multiple automatic tools were proposed \cite{SoK}. In order to verify security goals, these softwares have to compute the set of terms that an attacker is able to deduce from the network while (possibly) multiple runs the protocol are executing; since such set can possibly be unbounded, the general task can quickly become undecidable and suffer of the infinite state space problem: we can have an infinite number of sessions for each protocol, each one with an unbounded amount of nonces and messages of unlimited size. Without bounding at least two of these sources of infinity, termination can not be guaranteed by any tool in this category \cite{undecidability}.
+In order to streamline the proof of security properties in the symbolic model, multiple automatic tools were proposed \cite{SoK}. In order to verify security goals, these softwares have to compute the set of terms that an attacker is able to deduce from the network while (possibly) multiple runs the protocol are executing; since such set can possibly be infinite, the general task can quickly become undecidable and suffer of the infinite state space problem: we could have an unbounded number of sessions for each protocol, each one with an unlimited amount of nonces and recursive messages with no base case. Without bounding at least some of these possible sources of infinity, termination can not be guaranteed by any tool in this category \cite{undecidability}.
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/undecidability.png}
-    \caption{Decidability in symbolic verification. Image inspired by N. Vitacolonna's presentation \cite{PresentazioneVitacolonna}}
-\end{figure*}
+In particular, as shown by N. Durgin et al. \cite{ComplexityOfBoundedSecurity}, by restricting different sources of infinity we can ensure to reduce the model checking problem to different complexity classes; for example if we limited the number of nonces and messages, we would end up with a DEXP-complete problem, while if we restricted the number of sessions, the problem will still be affected from unbounded state space, but its solution will be NP-complete.
 
-
-In particular, as shown by N. Durgin et al. \cite{ComplexityOfBoundedSecurity}, by restricting different sources we can ensure to reduce the model checking problem to different complexity classes:
-
-\begin{itemize}
-    \item if we limit the number of nonces and messages, we end up with a DEXP-complete problem;
-    \item if we restrict the number of sessions and nonces, the problem will still be affected from unbounded state space, but its solution will be NP-complete; this workaround was adopted by a variety of tools such as Cl-AtSe \cite{clAtse}, OFMC \cite{ofmc} and SATMC \cite{satmc}.
-\end{itemize}
-
-Alternatively to bounding the sources of infinity, some software address undecidability by requiring human input (for example, Tamarin Prover \cite{tamarinIntroduction} features an interactive mode that allows the user to decide which security goals prioritize based on intermediate constraint systems, as we will see in \ref{subsec:tamarinGui}), returning inconclusive results (for example, ProverIf \cite{proverifIntroduction} may return an invalid attack trace) or even allowing non-termination.
+Alternatively to bounding the sources of infinity, some software address undecidability by requiring human input (for example, Tamarin Prover \cite{tamarinIntroduction} features an interactive mode that allows the user to decide which security goals prioritize based on intermediate constraint systems, as we will see in \ref{subsec:tamarinGui}), returning inconclusive results (for example, ProverIf \cite{proverifIntroduction} may return an invalid attack trace) or, more generally, allowing non-termination.
 
 \section{Tamarin Prover Overview}\label{sec:TamarinOverview}
 
@@ -225,13 +226,11 @@ By introducing a set of equations $E$ we can create a congruence relation $=_E$ 
     t =_E u \iff [t]_E = [u]_E
 \end{equation*}
 
-We will soon see how the use of equational theories enables us to formalize cryptographic primitives, but, before continuing, it is sensible to briefly talk about a decidability issue that regards this aspect of the term algebra.
+We will soon see how the use of equational theories enables us to formalize cryptographic primitives, but, before continuing, it is sensible to briefly talk about a decidability issues that regard this aspect of the term algebra.
 
 \begin{definition}[$(\Sigma, E)$-Unification]
     G Given a signature $\Sigma$, a set of variables $\chi$, with $\Sigma \cap \chi = \varnothing$ and an equational theory $E$, two terms $t,u \in \mathcal{T}_{\Sigma}(\chi)$ are $(\Sigma,E)$-unifiable if there is at least a mapping $\sigma$ such that $t\sigma =_E u\sigma$.
 \end{definition}
-
-Normally, unification modulo theories is undecidable \cite{unificationUndecidability}: to overcome this issue Tamarin recommends users to only define \textit{subterm convergent theories} to ensure termination of the unification process \cite{subtermconvergent}. In practice, this constraint is never enforced by the tool, thus users must be careful when introducing custom theories (notice that exploiting only Tamarin's default equations overcomes this issue but may not be sufficient to model all the possible scenarios).
 
 \begin{definition}[Convergent Theory]
     B Before defining what a convergent theory is, we have to define both \textit{terminating} and \textit{confluent} theories:
@@ -248,7 +247,9 @@ Normally, unification modulo theories is undecidable \cite{unificationUndecidabi
     A A subterm convergent theory is an equational theory that is convergent and, for each equation $e: L \rightarrow R, e \in E$, $R$ is either ground and in normal form or a proper subterm of $L$.
 \end{definition}
 
-As of this moment, Tamarin offers 10 different built-in equational theories that users can directly include in their formalization to straightforwardly model cryptographic operations. To provide some intuitive examples, we want to show the equations for pair construction and destruction and symmetric encryption:
+Normally, unification modulo theories is undecidable \cite{unificationUndecidability}: to overcome this issue Tamarin recommends users to only define \textit{convergent theories} with finite variant property to ensure termination of the unification process \cite{Dreier_2017}. Formally defining the finite variant property is out of the scope for this paper, but, intuitively we can express this property as follows: given a generic term $t$, we can compute all of its normal forms of its possible istances in advance. Before the publication of the 2017 paper, which provided new decidability results for the unification problem, Tamarin required its users to only define \textit{subterm convergent equational theories}; this constraint has been recently lifted, although the manual \cite{tamarinManual} still recommends to express custom theories as subterm convergent when possible for efficiency reasons.
+
+As of this moment, Tamarin offers 10 different built-in equational theories that users can directly include in their formalization to straightforwardly model cryptographic operations. To provide some intuitive examples, we wanted to show the equations for pair construction and destruction and symmetric encryption:
 
 \begin{figure*}
     \begin{align}
@@ -297,15 +298,33 @@ Note that each rule is labelled by a name $N$, thus can be seen as a pair $(N, R
 
 Notice the detail about the trace being a sequence and not a set: since security properties will be later on specified as guarded fragments of first order temporal logic on set of traces, the ordering relation present in a sequence allows to define temporal relations between different action facts.
 
-In particular, given a set of rewriting rules $P$, Tamarin will analyze the set of all the possible traces generated by executions of P:
+Although we introduced general rewriting rules, we still need to restrict our focus on rules that follow Dolev Yao's model semantics: as a consequence, we can formally define a protocol as a set of rules which follow some precise constraints:
+
+\begin{definition}[Protocol rules]
+    A A protocol rule is a multiset rewriting rule $l \xrightarrow{a} r$ such that
+    \begin{enumerate}
+        \item $l,a,r$ do not contain fresh names
+        \item $l$ does not contain $\mono{K}$ and $\mono{Out}$ facts
+        \item $r$ does not contain $\mono{Fr}$ and $\mono{K}$ facts
+        \item The argument of any $\mono{Fr}$ fact belongs to set of fresh terms
+        \item $r$ does not contain the function symbol $*$
+        \item $l \xrightarrow{a} r$ satisfies:
+        \begin{itemize}
+            \item $vars(r) \subseteq vars(l) \cup \mathcal{V}_\textrm{pub}$
+            \item $l$ only contains irreducible function symbols from the given signature or it is an instance if a rule that satisfies both conditions
+        \end{itemize}
+    \end{enumerate}
+\end{definition}
+
+After defining the idea of protocol within our rule rewriting system, it is clearly necessary to introduce also a formal definition of the possible executions of said protocol:
 
 \begin{definition}[Set of possible traces]
-    G Given a set of labelled rewriting rules $P = \{(N_1,RR_1),$ $...,(N_m,RR_m)\}$, we define the set of possible traces generated by $P$ as
+    G Given a set of labelled protocol rewriting rules $P$, we define the set of possible traces generated by it as
     \begin{align*}
-        traces(P) = \{ &\langle A_1,...,A_n \rangle | \exists S_1,...,S_n . \varnothing ^{\#} \xrightarrow[]{A_1} S_1 \xrightarrow[]{A_2} ... \xrightarrow[]{A_n} S_n\\
+        traces(P) = \{ &\langle A_1,...,A_n \rangle \ | \ \exists S_1,...,S_n . \varnothing ^{\#} \xrightarrow[]{A_1} S_1 \xrightarrow[]{A_2} ... \xrightarrow[]{A_n} S_n\\
         & \textrm{and no ground istance of } \mono{Fresh}() \textrm{ is used twice }\}
     \end{align*}
-    where $A_i$ is $RR_i$'s action facts multiset. Note that the fact $\mono{Fresh}$ will be soon introduced formally, but for now it is enough to know that it is used to generate new terms.
+    where $A_i$ is the action fact of the $i^\textrm{th}$ rule applied. Note that the fact $\mono{Fresh}$ will be soon introduced formally, but for now it is enough to know that it is used to generate new terms.
 \end{definition}
 
 Furthermore, it is important to note that security properties will be specified on specific types of traces, namely \textit{observable traces}. 
@@ -392,12 +411,10 @@ As previously anticipated, in Tamarin security properties are expressed as guard
 Some security properties are straightforward to formalize as formulas with this syntax and semantics: for example, assuming in our theory there is at least a rule that has an action fact $\mono{Secret}(m)$ that indicates that a party supposes that $m$ is confidential, secrecy can be expressed as:
 
 \begin{equation*}
-    \forall tr \in traces(P), m, t_1: Secret(m) @ t_1 \Rightarrow \neg \exists t_2 : K(m) @ t_2
+    \forall m, t_1: Secret(m) @ t_1 \Rightarrow \neg \exists t_2 : K(m) @ t_2
 \end{equation*}
 
-Other properties (for example, peer authentication or protection from replay attacks) as not as easy to express and rely pretty heavily on the underlying rule rewriting system, thus we invite the reader to take a look at the examples of successful formalizations listed on Tamarin's website \cite{tamarin}.
-
-Keeping in consideration that also properties can clearly define sets of traces similarly to protocol rules, we can define correctness as follows:
+Keeping in consideration that also properties can clearly define sets of traces similarly to protocol rules (given a formula $\phi$, $traces(\phi)$ is the set of all traces that satisfy $\phi$), we can define correctness as follows:
 
 \begin{definition}[Correctness]
     G Given a set of protocol rules $P$ and a property to prove $\phi$, $P$ is correct in regards to $\phi$ if and only if the set of traces generated by $P$ is a subset of the one generated by $\phi$:
