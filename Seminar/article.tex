@@ -193,7 +193,7 @@ Signatures are fundamental, since are the building blocks of our theory. As we w
 While in this introduction we will deal with domain-agnostic logical terms, in practice Tamarin discriminates between 3 different types of terms to model various assumptions on different pieces of knowledge:
 
 \begin{itemize}
-    \item \textit{Fresh} (groud) terms are prefixed by a \textasciitilde{} and model information that we can assume a party can check for freshness.
+    \item \textit{Fresh} (groud) terms are prefixed by a \textrm{\textasciitilde}{} and model information that we can assume a party can check for freshness.
     \item \textit{Public} names are juxtaposed by a \$ and formalize ground information that any party within the network knows.
     \item \textit{Normal} terms are any form of term: fresh, public or built upon function symbols.
 \end{itemize}
@@ -268,9 +268,9 @@ Finally, it has to be noted that a custom symbol can be defined with the $\mono{
 
 \subsection{Formalizing protocols as sets of rewriting rules}
 
-We have seen how cryptographic operations can be formalized in Tamarin's syntax. Communication protocols involve far more complex dynamics than can not be expressed by atomic term manipulations, thus we introduce the idea of \textit{facts}.
+We have seen how cryptographic operations can be formalized in Tamarin's syntax. Communication protocols involve far more complex dynamics than the ones that can be expressed by atomic term manipulations, thus we introduce the idea of \textit{facts}.
 
-In Tamarin, the execution of a protocol is modeled by the evolution of a multiset\footnote{Within this paper we define multisets through the $\{\{ ... \}\}$ notation: an empty multiset is represented as $\{\{\}\}$, while a multiset containing elements $x,y,z$ is represented as $\{\{x,y,z\}\}$} of facts (which represent the state of the system at any given moment). In knowledge representation, facts are "true" predicates that have a fixed arity and are composed of terms belonging to the supporting term-algebra; Tamarin follows this simple definition and requires the user to define them with a starting capital letter. In particular, there are two different versions of this construct that can be exploited during protocol modeling:
+In Tamarin, the execution of a protocol is modeled by the evolution of a multiset\footnote{Within this paper we define multisets through the $\{\{ ... \}\}$ notation: an empty multiset is represented as $\{\{\}\}$, while a multiset containing elements $x,y,z$ is represented as $\{\{x,y,z\}\}$} of facts (which represent the state of the system at any given moment). In logic, facts are predicates that have a fixed arity and are composed of terms belonging to the supporting term-algebra; Tamarin follows this simple definition and requires the user to define them with a starting capital letter. In particular, there are two different versions of this construct that can be exploited during protocol modeling:
 
 \begin{itemize}
     \item \textit{linear facts} can be consumed only once and are useful to model state transitions and ephemeral messages;
@@ -306,12 +306,12 @@ Although we introduced general rewriting rules, we still need to restrict our fo
         \item $l,a,r$ do not contain fresh names
         \item $l$ does not contain $\mono{K}$ and $\mono{Out}$ facts
         \item $r$ does not contain $\mono{Fr}$ and $\mono{K}$ facts
-        \item The argument of any $\mono{Fr}$ fact belongs to set of fresh terms
+        \item The argument of any $\mono{Fr}$ fact belongs to the set of fresh terms
         \item $r$ does not contain the function symbol $*$
         \item $l \xrightarrow{a} r$ satisfies:
         \begin{itemize}
             \item $vars(r) \subseteq vars(l) \cup \mathcal{V}_\textrm{pub}$
-            \item $l$ only contains irreducible function symbols from the given signature or it is an instance if a rule that satisfies both conditions
+            \item $l$ only contains irreducible function symbols from the given signature or it is an instance of a rule that satisfies both conditions
         \end{itemize}
     \end{enumerate}
 \end{definition}
@@ -363,8 +363,8 @@ and the observable trace
 Although the above described multiset rule rewriting system can be used for general model checking, Tamarin provides a set of built-in rules to model connections within Dolev-Yao's adversary controlled network:
 
 \begin{itemize}
-    \item $[ \ ] \xrightarrow{\mono{Fresh}(~msg)} [ \mono{Fr}(~msg) ]$ allows for the generation of new fresh values.
-    \item $[ \mono{Fr}(~msg) ] \to [ \mono{K}(~msg) ]$ allows for the generation of new fresh values by the attacker (expressed by the $\mono{K}$ fact)
+    \item $[ \ ] \xrightarrow{\mono{Fresh}(\textrm{\textasciitilde} msg)} [ \mono{Fr}(\textrm{\textasciitilde} msg) ]$ allows for the generation of new fresh values.
+    \item $[ \mono{Fr}(\textrm{\textasciitilde} msg) ] \xrightarrow{\mono{Fresh}(\textrm{\textasciitilde} msg)} [ \mono{K}(\textrm{\textasciitilde} msg) ]$ allows for the generation of new fresh values by the attacker (expressed by the $\mono{K}$ fact)
     \item $[ \mono{Out}_{\textrm{ins}}(msg) ] \to [ \mono{K}(msg) ]$ allows the attacker to eavesdrop all messages travelling through the network. 
     \item $[ \mono{K}(msg) ] \xrightarrow{\mono{K}(msg)} [ \mono{In}_{\textrm{ins}}(msg) ]$ allows user to retrieve messages from the attacker-controlled network.
     \item $[ \ ] \to [ \mono{K}(\$x) ]$ allows the attacker to discover all public names.
@@ -506,7 +506,7 @@ highlighting the fact that human error is a key element in real-world threat ana
   
 To narrow the gap between the attacks normally considered in formal protocol verification and the threat surface of actual implementation of said schemes, Basin et al. proposed in 2016 \cite{Basin_2016} an innovative solution to model erroneous deviations from protocol specification within the Dolev Yao model. In the rest of this section, we will introduce the ideas behind such article, underlining how simple it is to implement these ideas within Tamarin's fact rewriting mechanics. Note that the paper actually includes some results and notation from previous publications without prior introduction: to provide a more comprehensible explaination of the material we will include additional information also from articles \cite{Lowe_1997} and \cite{Basin_2015} and the appendixes of \cite{Basin_2016}, devoid of an explicit notice.
 
-\subsection{Including human knowledge in protocol formalization}
+\subsection{Including human knowledge in protocol formalization}\label{sec:including_humans}
 
 Before defining errors in human behaviour, we need to actually establish which are the capabilities of said humans within our model. It is not unreasonable to presume that a person can perform simple operations but not complex computations unaided; in particular, we assume that a human can:
 
@@ -587,8 +587,8 @@ A brilliant example of the projection of a protocol specification onto a role sc
     &1.\  S \ins R &&: \textrm{fresh}(m_1).m_1\\
     &2.\  R \sec S &&: m_2
 \end{alignat*}
-\label{eq:toy_protocol}
 \caption{Toy protocol in Alice and Bob notation}
+\label{eq:toy_protocol}
 \end{figure}
 
 \begin{figure}
@@ -596,17 +596,20 @@ A brilliant example of the projection of a protocol specification onto a role sc
     \langle \mono{Start}(S,R), \mono{Fresh}(S, m_1), \mono{Send}(S, \textrm{ins}, R, m_1), \mono{Receive}(S, \textrm{sec}, R, m_2) \rangle
 \end{equation*}
 \caption{Role script of role $S$ for the Toy protocol}
+\label{eq:role_script}
 \end{figure}
 
 In turn, any role script can be translated into a set of Tamarin rewriting rules that formalize the behaviour of the given party (in this case $S$) into the system:
 
+\begin{figure}
 \begin{gather*}
     [ \ ] \xrightarrow{\mono{Start}(S,R)} [\mono{AgSt}(S,0,R)]\\
     [\mono{AgSt}(S,0,R), \mono{Fr}(m_1)] \xrightarrow{\mono{Fresh}(S,m_1)} [\mono{AgSt}(S,1,\langle R,m_1 \rangle)]\\
     [\mono{AgSt}(S,1,\langle R,m_1 \rangle)] \xrightarrow{\mono{Send}(S,\textrm{ins},R,m_1)} [\mono{AgSt}(S,2,\langle R,m_1 \rangle), \mono{Out}_\textrm{ins}(\langle S, R, m_1 \rangle)]\\
     [\mono{AgSt}(S,2,\langle R,m_1 \rangle), \mono{In}_\textrm{sec}(\langle R, S, m_2 \rangle)] \xrightarrow{\mono{Receive}(S, \textrm{sec}, R, m_2)} [\mono{AgSt}(S,3,\langle R, m_1, m_2 \rangle)]
 \end{gather*}
-
+\caption{Rewriting rules for role script \ref{eq:role_script}}
+\end{figure}
 Assuming we have the corresponding rules also for $R$, we can see that a succesfull execution of the protocols that follows the specification of \ref{eq:toy_protocol} will induce a trace that mirrors the role script of an agent (given that we ignore the action facts belonging to other parties' actions). Furthermore, note that the function symbols belonging to $\textrm{RoleActions}$ are now used as action facts: this is natural since in Tamarin we can only specify formulas (within lemmas and restrictions) over facts and not directly over terms.
 
 After formally introducing role scripts, we can define a human error as \textit{any deviation of a human from his role script}. Any human that makes mistakes is said a \textit{fallible human}. On the other hand, an agent which adheres perfectly to his specification is said an \textit{infallible human}.
@@ -632,18 +635,21 @@ The \textit{Rule-Based Human Approach} begins with the introduction of an \texti
 
 Within Tamarin's fact rewriting system it is quite natural to formalize humans through the rule-based approach: firstly, we can model the untrained human behaviour through the following rules:
 
+\begin{figure}[b]
 \begin{gather}
-    [\mono{Fr}(x)] \xrightarrow{\mono{Fresh}(H, \langle t,x \rangle)} [\mono{!HK}(H, \langle t,x \rangle)] \label{eq:fresh_term_knowledge}\\
+    [\mono{Fr}(\textrm{\textasciitilde}x)] \xrightarrow{\mono{Fresh}(H, \langle t,\textrm{\textasciitilde}x \rangle)} [\mono{!HK}(H, \langle t,\textrm{\textasciitilde} x \rangle)] \label{eq:fresh_term_knowledge}\\
     [\mono{!HK}(H, \langle t, x \rangle)] \xrightarrow{\mono{Send}(H, \textrm{ins}, P, \langle t,x \rangle)} [\mono{Out}_{\textrm{ins}}(\langle H, P, \langle t,x \rangle \rangle)] \label{eq:telling_the_attacker}\\
     [\mono{In}_{\textrm{ins}}(\langle P, H, \langle t,x \rangle \rangle)] \xrightarrow{\mono{Receive}(H, \textrm{ins}, P, \langle t,x \rangle)} [\mono{!HK}(H, \langle t,x \rangle)] \label{eq:retrieving_from_the_attacker}
 \end{gather}
+\caption{Rewriting rules for the untrained human}
+\end{figure}
 
 These rules clearly follow the semantics introduced in Section \ref{sec:formalizing_human_errors} when explaining Role Scripts. We can trivially define rules equivalent to \ref{eq:telling_the_attacker} and \ref{eq:retrieving_from_the_attacker} for the remaining types of channels ($\textrm{auth}, \textrm{conf}, \textrm{sec}$).
 
 Let us take a closer look at these rules:
 
 \begin{itemize}
-    \item Rule \ref{eq:fresh_term_knowledge} allows to any human party to generate a fresh term and to add it to his knowledge, along with the relevant tag $t$. This models, for example, the generation of a new password by a registering user.
+    \item Rule \ref{eq:fresh_term_knowledge} allows to any human party to generate a fresh term and to add it to his knowledge, along with the relevant tag $t$. This models, for example, the generation of a new password by a registering user. Note that the tag should be assigned through the $Tag$ function described in \ref{sec:including_humans} with $x$ as his argument, but here this detail was left out for clarity purposes.
     \item Rule \ref{eq:telling_the_attacker} includes into the formalization the leakage of any information (both private and non) that makes up the human's knowledge database onto the network. A real-world example of this would be an involuntary password reveal by a user.
     \item Rule \ref{eq:retrieving_from_the_attacker} allows a human to update his existing knowledge based on new information received from the network. For example, an unexperienced user may receive a phishing mail explaining that he must re-enter his credentials into a new website because of security reasons.
 \end{itemize}

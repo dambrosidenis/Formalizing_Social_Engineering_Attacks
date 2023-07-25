@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.15)  24 JUL 2023 17:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.7.15)  25 JUL 2023 23:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1019,10 +1019,10 @@ Package pdftex.def Info: images/socialengineeringattacks.png  used on input lin
 e 502.
 (pdftex.def)             Requested size: 234.8775pt x 268.21498pt.
  [12 <./images/gui.png>] [13 <./images/socialengineeringattacks.png>] [14]
-<images/falliblehumans.png, id=318, 1947.275pt x 756.8275pt>
+<images/falliblehumans.png, id=319, 1947.275pt x 756.8275pt>
 File: images/falliblehumans.png Graphic file (type png)
 <use images/falliblehumans.png>
-Package pdftex.def Info: images/falliblehumans.png  used on input line 620.
+Package pdftex.def Info: images/falliblehumans.png  used on input line 623.
 (pdftex.def)             Requested size: 422.77664pt x 164.3084pt.
  [15] [16 <./images/falliblehumans.png>] [17] (./article.bbl [18]
 [19]) [20] (./article.aux)
@@ -1030,13 +1030,13 @@ Package rerunfilecheck Info: File `article.out' has not changed.
 (rerunfilecheck)             Checksum: EB3B4D88F364D04D83355B76AE225710;3705.
  ) 
 Here is how much of TeX's memory you used:
- 24383 strings out of 478268
- 456122 string characters out of 5846347
- 748281 words of memory out of 5000000
- 42008 multiletter control sequences out of 15000+600000
+ 24387 strings out of 478268
+ 456176 string characters out of 5846347
+ 748436 words of memory out of 5000000
+ 42010 multiletter control sequences out of 15000+600000
  480471 words of font info for 72 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 109i,19n,118p,1155b,1014s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 109i,20n,118p,1155b,1014s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 }</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb>
 </usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><
@@ -1062,10 +1062,10 @@ onts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2022/texmf-dist/fon
 ts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2022/texmf-dist
 /fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2022/texmf-
 dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on article.pdf (20 pages, 837765 bytes).
+Output written on article.pdf (20 pages, 838300 bytes).
 PDF statistics:
- 500 PDF objects out of 1000 (max. 8388607)
- 418 compressed objects within 5 object streams
- 116 named destinations out of 1000 (max. 500000)
+ 504 PDF objects out of 1000 (max. 8388607)
+ 422 compressed objects within 5 object streams
+ 118 named destinations out of 1000 (max. 500000)
  196 words of extra memory for PDF output out of 10000 (max. 10000000)
 
