@@ -93,6 +93,7 @@ If you use this work in your research, please cite it as follows:
     author = {D'Ambrosi, Denis},
     month = jun,
     title = {{Formalizing Social Engineering Attacks in the Symbolic Model}},
+    url = {https://github.com/dambrosidenis/Formalizing_Social_Engineering_Attacks},
     version = {1.0.0},
     year = {2023}
 }
