@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: D'Ambrosi
+    given-names: Denis
+    orcid: https://orcid.org/0009-0001-2275-6496
+title: "Formalizing Social Engineering Attacks in the Symbolic Model"
+version: 1.0.0
+date-released: 2023-06-26
